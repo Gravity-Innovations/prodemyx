@@ -16,7 +16,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "Olivia Mia",
       designation: "Web Design",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 2,
@@ -25,7 +25,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "William Hope",
       designation: "Digital Marketing",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 3,
@@ -34,7 +34,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "Olivia Mia",
       designation: "Web Design",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 4,
@@ -43,7 +43,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "Mark Jukarberg",
       designation: "UX Design Lead",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 5,
@@ -52,7 +52,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "David Millar",
       designation: "UX/UI Design",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 6,
@@ -61,7 +61,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "Olivia Mia",
       designation: "Web Design",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 7,
@@ -70,7 +70,7 @@ const testimonial_data: DataType[] = [
       rating: "(4.8 Ratings)",
       title: "Mark Jukarberg",
       designation: "UX Design Lead",
-      desc: "SkillGro The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
+      desc: "Prodemyx The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.",
    },
    {
       id: 1,
