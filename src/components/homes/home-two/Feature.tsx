@@ -12,9 +12,11 @@ const Feature = ({ style }: FeatureProps) => {
             <div className="row justify-content-center">
                <div className="col-xl-6 col-lg-8">
                   <div className="section__title text-center mb-40">
-                     <span className="sub-title">Our Top Features</span>
+                     <span className="sub-title">skill-to-impact learning</span>
                      <h2 className="title">Achieve Your Goal With Prodemyx</h2>
-                     <p>when an unknown printer took a galley of type and scrambled make <br /> specimen book has survived not only five centuries</p>
+                     <p>The world no longer runs on theory it runs on systems.
+At ProdemyX, we’re building the world’s first production-simulated learning platform where every student learns by operating real systems, not by watching slides or demo labs.
+</p>
                   </div>
                </div>
             </div>
@@ -22,7 +24,7 @@ const Feature = ({ style }: FeatureProps) => {
                <div className="row justify-content-center">
                   {feature_data.filter((items) => items.page === "home_2").map((item) => (
                      <div key={item.id} className="col-lg-4 col-md-6">
-                        <div className="features__item-two">
+                        <div className="features__item-two" style={{minHeight:"225px"}}>
                            <div className="features__content-two">
                               <div className="content-top">
                                  <div className="features__icon-two">

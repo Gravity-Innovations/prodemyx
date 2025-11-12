@@ -1,10 +1,10 @@
-import { useState } from "react";
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import course_data from "../../../data/home-data/CourseData";
 import { Link } from "react-router-dom";
 
-const tab_title: string[] = ["All Courses", "Design", "Business", "Development"];
+
 
 // slider setting
 const setting = {
@@ -49,11 +49,9 @@ interface CourseProps {
 
 const CourseArea = ({ style }: CourseProps) => {
 
-  const [activeTab, setActiveTab] = useState(0);
 
-  const handleTabClick = (index: number) => {
-    setActiveTab(index);
-  };
+
+
 
   return (
     <section className={`courses-area ${style ? "section-py-120" : "section-pt-120 section-pb-90"}`} style={{ backgroundImage: `url(/assets/img/bg/courses_bg.jpg )` }}>
@@ -62,11 +60,11 @@ const CourseArea = ({ style }: CourseProps) => {
           <div className="row justify-content-center">
             <div className="col-lg-6">
               <div className="section__title text-center mb-40">
-                <span className="sub-title">Top Class Courses</span>
+                <span className="sub-title">Programs That Redefine Learning</span>
                 <h2 className="title">Explore Our World&apos;s Best Courses</h2>
-                <p className="desc">When known printer took a galley of type scrambl edmake</p>
+                <p className="desc">ProdemyX is built for the next generation of engineers the ones who want to build things that actually run.</p>
               </div>
-              <div className="courses__nav">
+              {/* <div className="courses__nav">
                 <ul className="nav nav-tabs" id="courseTab" role="tablist">
                   {tab_title.map((tab, index) => (
                     <li key={index} onClick={() => handleTabClick(index)} className="nav-item" role="presentation">
@@ -74,14 +72,14 @@ const CourseArea = ({ style }: CourseProps) => {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
 
         <div className="tab-content" id="courseTabContent">
-          {course_data.filter((items) => items.page === "home_1").map((course_item, index) => (
-            <div key={course_item.id} className={`tab-pane fade ${activeTab === index ? 'show active' : ''}`} id="all-tab-pane" role="tabpanel" aria-labelledby="all-tab">
+          {course_data.filter((items) => items.page === "home_1").map((course_item) => (
+            <div key={course_item.id} className="tab-pane fade show active" id="all-tab-pane" role="tabpanel" aria-labelledby="all-tab">
               <Swiper {...setting} modules={[Autoplay, Navigation]} className="swiper courses-swiper-active">
                 {course_item.course_details.map((item) => (
                   <SwiperSlide key={item.id} className="swiper-slide">
@@ -92,14 +90,15 @@ const CourseArea = ({ style }: CourseProps) => {
                         </Link>
                       </div>
                       <div className="courses__item-content">
-                        <ul className="courses__item-meta list-wrap">
+                        {/* <ul className="courses__item-meta list-wrap">
                           <li className="courses__item-tag">
                             <Link to="">{item.tag}</Link>
                           </li>
                           <li className="avg-rating"><i className="fas fa-star"></i> {item.review}</li>
-                        </ul>
+                        </ul> */}
                         <h5 className="title"><Link to="">{item.title}</Link></h5>
-                        <p className="author">By <Link to="#">{item.author}</Link></p>
+                        <p>{item.author}</p>
+                        <p><b style={{color:"#000"}}>Outcome</b> : {item.tag}</p>
                         <div className="courses__item-bottom">
                           <div className="button">
                             <Link to="">

@@ -13,7 +13,7 @@ const FooterOne = ({ style, style_2 }: any) => {
                      <div className="footer__widget">
                         <h4 className="footer__widget-title">Get In Touch</h4>
                         <div className="footer__contact-content">
-                           <p>when an unknown printer took <br /> galley type and scrambled</p>
+                           
                            <ul className="list-wrap footer__social">
                               <Social />
                            </ul>

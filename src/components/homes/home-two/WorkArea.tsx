@@ -23,34 +23,50 @@ const WorkArea = () => {
                         </a>
                      </div>
                   </div>
+                  <style>
+                     {`
+                     .work__content > p {
+                           margin-bottom: 25px;
+                        }
+                     `}
+                  </style>
 
                   <div className="col-lg-6">
                      <div className="work__content">
                         <div className="section__title mb-20">
-                           <span className="sub-title">Free Workshop</span>
-                           <h2 className="title">Join Our Free Workshops</h2>
+                           <span className="sub-title">ProdemyX isn’t a course. It’s a transformation</span>
+                           <h2 className="title">What Makes ProdemyX Different</h2>
                         </div>
-                        <p>Edhen an unknown printer took a galley of type and scrambled it to make a type specimen bookas survived not only five centuries.Edhen an unknown printer took a galley of type and scrambled.</p>
-                        <div className="work__list-wrap">
-                           <div className="work__list-box">
-                              <div className="work__list-box-top">
-                                 <div className="icon">
-                                    <i className="flaticon-profit"></i>
-                                 </div>
-                                 <h4 className="title">Smooth Virtual Live Classes</h4>
-                              </div>
-                              <p>Edhen an unknown printer Rtook galley of type scrambled.</p>
-                           </div>
-                           <div className="work__list-box">
-                              <div className="work__list-box-top">
-                                 <div className="icon">
-                                    <i className="flaticon-mortarboard"></i>
-                                 </div>
-                                 <h4 className="title">99% Graduation Complete</h4>
-                              </div>
-                              <p>Edhen an unknown printer Rtook galley of type scrambled.</p>
-                           </div>
-                        </div>
+                          <h5 className="title">Production-Grade Infra</h5>
+                          <p>No virtual “mock labs.” You’ll operate on actual Production cloud infrastructure  
+with live clusters, monitoring, and deployments running 24/7.</p>
+                          
+                          
+                                 <h5 className="title">AI-Powered Mentorship</h5>
+                             
+                              <p>Get real-time, personalized insights from an AI mentor trained on your progress, 
+combined with human guidance from real engineers.</p>
+                          
+
+
+                           
+                                 <h5 className="title">Real Projects. Real Downtime. Real Learning</h5>
+                            
+                              <p>Our learners don’t memorize; they experience. We introduce chaos, 
+simulate outages, and teach recovery  because production never goes smoothly, 
+and that’s where real learning happens.</p>
+                          
+                                 <h5 className="title">Global Exposure</h5>
+                             
+                              <p>
+Designed for learners from India, GCC, US, and beyond  aligned with global DevOps and 
+AI engineering standards.</p>
+                          
+                                 <h5 className="title">Career-Focused Learning</h5>
+                             
+                              <p>Every course outcome is tied to real job skills project portfolio, GitHub pipelines, 
+resume-ready case studies, and cloud certifications.</p>
+                          
                         <div className="tg-button-wrap">
                            <Link to="" className="btn arrow-btn">Quick Join Now <BtnArrow /></Link>
                         </div>
