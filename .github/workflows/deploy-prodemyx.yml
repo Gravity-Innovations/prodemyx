@@ -73,4 +73,3 @@ jobs:
           sudo nginx -t && sudo systemctl reload nginx
           echo "✅ Prodemyx website deployment successful!"
         EOF
-        

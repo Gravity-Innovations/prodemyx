@@ -144,4 +144,3 @@ jobs:
         ssh -o StrictHostKeyChecking=no \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
           "sudo /usr/sbin/nginx -t && sudo systemctl reload nginx && echo 'Dashboard deployment successful!'"
-          
