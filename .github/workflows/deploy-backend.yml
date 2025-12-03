@@ -1,0 +1,95 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Ensure Node + PM2 installed on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "if ! command -v node >/dev/null 2>&1; then \
+              echo 'Installing Node.js 18...'; \
+              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -; \
+              sudo apt-get install -y nodejs; \
+            fi; \
+            if ! command -v pm2 >/dev/null 2>&1; then \
+              echo 'Installing PM2...'; \
+              sudo npm install -g pm2; \
+            fi"
+
+    - name: Setup MySQL
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "sudo apt-get update && \
+           sudo apt-get install -y mysql-server && \
+           sudo systemctl start mysql && \
+           sudo mysql -e \"CREATE DATABASE IF NOT EXISTS prodemyx;\""
+
+    - name: Create backend directory on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "sudo mkdir -p '${{ secrets.EC2_BACKEND_PATH }}' && sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} '${{ secrets.EC2_BACKEND_PATH }}'"
+
+    - name: Sync backend folder to EC2
+      run: |
+        rsync -avz --delete \
+          --exclude 'node_modules' \
+          --exclude '.git' \
+          --exclude '.env' \
+          --exclude 'logs/*' \
+          --exclude '*.log' \
+          -e 'ssh -o StrictHostKeyChecking=no' \
+          backend/ \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:'${{ secrets.EC2_BACKEND_PATH }}/'
+
+    - name: Deploy environment variables
+      env:
+        EC2_USER: ${{ secrets.EC2_USER }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+        EC2_BACKEND_PATH: ${{ secrets.EC2_BACKEND_PATH }}
+        BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+      run: |
+        ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "bash -s" <<EOF
+        cat > '$EC2_BACKEND_PATH/.env' <<'ENVFILE'
+        $BACKEND_ENV
+        ENVFILE
+        chmod 600 '$EC2_BACKEND_PATH/.env'
+        EOF
+
+    - name: Install dependencies + restart backend
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "set -e; \
+           cd '${{ secrets.EC2_BACKEND_PATH }}'; \
+           npm install --legacy-peer-deps; \
+           if pm2 list | grep -q prodemyx-backend; then \
+             echo 'Restarting existing backend...'; \
+             pm2 restart prodemyx-backend; \
+           else \
+             echo 'Starting new backend process...'; \
+             pm2 start server.js --name prodemyx-backend; \
+           fi; \
+           pm2 save"
+           
+    - name: Verify deployment
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "pm2 list | grep prodemyx-backend || exit 1; echo 'Backend is running.'"
+          

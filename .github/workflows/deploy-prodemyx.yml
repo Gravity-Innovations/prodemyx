@@ -1,0 +1,74 @@
+name: Deploy Prodemyx Website to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'prodemyx/**'
+      - '.github/workflows/deploy-prodemyx.yml'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: prodemyx/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd prodemyx
+        npm install --legacy-peer-deps
+
+    - name: Build Prodemyx website
+      env:
+        VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
+        VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
+        VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
+      run: |
+        cd prodemyx
+        npm run build
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Create website directory on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          sudo mkdir -p ${{ secrets.EC2_PRODEMYX_PATH }}
+          # Note: Changed chown user from 'ubuntu' to 'www-data' for Nginx compatibility 
+          sudo chown -R www-data:www-data ${{ secrets.EC2_PRODEMYX_PATH }}
+        EOF
+
+    - name: Deploy build to EC2
+      run: |
+        rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          prodemyx/dist/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_PRODEMYX_PATH }}/
+
+    - name: Set correct permissions
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Ensure Nginx/web server user can read files
+          sudo chown -R www-data:www-data ${{ secrets.EC2_PRODEMYX_PATH }}
+          sudo chmod -R 755 ${{ secrets.EC2_PRODEMYX_PATH }}
+        EOF
+
+    - name: Reload Nginx
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Test configuration syntax and reload the Nginx service
+          sudo nginx -t && sudo systemctl reload nginx
+          echo "✅ Prodemyx website deployment successful!"
+        EOF
