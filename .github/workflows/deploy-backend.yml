@@ -245,8 +245,7 @@ jobs:
             
             location /app/ {
                 alias /var/www/prodemyx-frontend/;
-                try_files \$uri \$uri/ /app/index.html;
-                index index.html;
+                try_files \$uri \$uri/ /index.html;
             }
             
             location /phpmyadmin {
@@ -298,8 +297,8 @@ jobs:
         # Stop any existing process to be safe
         pm2 delete prodemyx-backend 2>/dev/null || true
         
-        echo "Starting new backend process..."
-        pm2 start server.js --name prodemyx-backend
+        echo "Starting new backend process using npm start..."
+        pm2 start npm --name prodemyx-backend -- run start -- --port=5000
         pm2 save
         echo "Backend deployment completed!"
         EOF
