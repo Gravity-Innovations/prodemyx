@@ -199,7 +199,7 @@ jobs:
         echo "Configuring Nginx with all routes..."
         sudo tee /etc/nginx/sites-available/prodemyx-config > /dev/null <<NGINXEOF
         upstream backend_app {
-            server 127.0.0.1:3000;
+            server 127.0.0.1:5000;
             keepalive 64;
         }
 
