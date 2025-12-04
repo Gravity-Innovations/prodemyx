@@ -3,25 +3,25 @@ http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/ shows Cannot GET 
 http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/users shows {"message":"Unauthorized"}
 http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/api-docs shows Cannot GET /api/api-docs
 
-on sql file update
-1. Your EC2 user is correct
-EC2_USER = ubuntu
+Prodemyx Deployed:
 
-2. Your EC2 host is correct
-EC2_HOST = ec2-16-171-24-103.eu-north-1.compute.amazonaws.com
+Frontend: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com
+Dashboard: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/app
+API docs: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api-docs
+DB: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/phpmyadmin
 
-3. Your deployment directories are correct and valid
+db: prodemyx
+username: prodemyx_user
+password: ProdemyxSecure2024!
 
-Your values:
+github repo secrets:
 
-EC2_BACKEND_PATH     = /var/www/prodemyx-backend
-EC2_FRONTEND_PATH    = /var/www/prodemyx-frontend
-EC2_PRODEMYX_PATH    = /var/www/prodemyx-website
-
-All three are valid Unix absolute paths.
-Permissions can be set using chown/chmod.
-
-4. VITE_API_URL (github repo secret): http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api was set
+EC2_USER: ubuntu
+EC2_HOST: ec2-16-171-24-103.eu-north-1.compute.amazonaws.com
+EC2_BACKEND_PATH: /var/www/prodemyx-backend
+EC2_DASHBOARD_PATH: /var/www/prodemyx-dashboard
+EC2_PRODEMYX_PATH: /var/www/prodemyx-website
+VITE_API_URL: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api
 
 
 ec2 instance groups:
