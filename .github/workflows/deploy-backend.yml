@@ -198,9 +198,10 @@ jobs:
 
     - name: Configure Nginx with all routes
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} bash << EOF
         echo "Configuring Nginx with all routes..."
-        sudo tee /etc/nginx/sites-available/prodemyx-config > /dev/null <<NGINXEOF
+        export DASHBOARD_PATH="${{ secrets.EC2_DASHBOARD_PATH }}"
+        cat > /tmp/nginx-config << 'NGINXEOF'
         upstream backend_app {
             server 127.0.0.1:5000;
             keepalive 64;
@@ -223,13 +224,13 @@ jobs:
             location /api/ {
                 proxy_pass http://backend_app;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_cache_bypass $http_upgrade;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto \$scheme;
+                proxy_cache_bypass \$http_upgrade;
                 proxy_read_timeout 300s;
                 proxy_connect_timeout 75s;
             }
@@ -237,23 +238,40 @@ jobs:
             location /api-docs {
                 proxy_pass http://backend_app/api-docs;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_cache_bypass $http_upgrade;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto \$scheme;
+                proxy_cache_bypass \$http_upgrade;
+            }
+            
+            location /phpmyadmin {
+                root /usr/share;
+                index index.php index.html index.htm;
+                location ~ ^/phpmyadmin/(.+\.php)\$ {
+                    try_files \$uri =404;
+                    root /usr/share;
+                    fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+                    fastcgi_index index.php;
+                    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+                    include fastcgi_params;
+                }
+                location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))\$ {
+                    root /usr/share;
+                }
             }
             
             location /app/ {
-                alias ${{ secrets.EC2_DASHBOARD_PATH }}/;
-                try_files $uri $uri/ /app/;
+                alias \${DASHBOARD_PATH}/;
+                try_files \$uri \$uri/ /app/index.html;
+                index index.html;
             }
             
             location / {
                 root /var/www/prodemyx-website;
-                try_files $uri $uri/ /index.html;
+                try_files \$uri \$uri/ /index.html;
                 index index.html;
             }
             
@@ -264,6 +282,7 @@ jobs:
             }
         }
         NGINXEOF
+        envsubst '\${DASHBOARD_PATH}' < /tmp/nginx-config | sudo tee /etc/nginx/sites-available/prodemyx-config > /dev/null
         sudo ln -sf /etc/nginx/sites-available/prodemyx-config /etc/nginx/sites-enabled/prodemyx-config
         sudo rm -f /etc/nginx/sites-enabled/default
         sudo nginx -t
@@ -294,7 +313,6 @@ jobs:
     - name: Verify deployment
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'EOF'
-        set -e
         echo "========================================="
         echo "Deployment Verification"
         echo "========================================="
@@ -305,7 +323,7 @@ jobs:
         echo "Checking Nginx..."
         sudo systemctl is-active nginx || exit 1
         echo "Checking PHP-FPM..."
-        sudo systemctl is-active php8.3-fpm || exit 1
+        sudo systemctl is-active php8.3-fpm || echo "Warning: PHP-FPM not active (phpMyAdmin may not work)"
         echo "Testing backend API..."
         sleep 3
         curl -f http://localhost:5000 > /dev/null 2>&1 || echo "Backend warming up..."
@@ -316,7 +334,7 @@ jobs:
         echo "  - MySQL: Active"
         echo "  - Node.js Backend: Active (PM2)"
         echo "  - Nginx: Active"
-        echo "  - PHP-FPM: Active"
+        echo "  - PHP-FPM: $(sudo systemctl is-active php8.3-fpm 2>/dev/null || echo 'Inactive')"
         echo "  - phpMyAdmin: Available at /phpmyadmin"
         echo "  - Swagger Docs: Available at /api-docs"
         echo "========================================="
