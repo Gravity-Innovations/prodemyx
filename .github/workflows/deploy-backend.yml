@@ -244,7 +244,7 @@ jobs:
             
             location /app/ {
                 alias ${{ secrets.EC2_DASHBOARD_PATH }}/;
-                try_files $uri $uri/ /app/index.html;
+                try_files $uri $uri/ index.html;
             }
             
             location /phpmyadmin {

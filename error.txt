@@ -1,8 +1,4 @@
-http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/app/ shows error page 
-http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/ shows Cannot GET /api/
-http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/users shows {"message":"Unauthorized"}
-http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/api/api-docs shows Cannot GET /api/api-docs
-
+GET http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/app/ 500 (Internal Server Error)
 Prodemyx Deployed:
 
 Frontend: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com
