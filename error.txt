@@ -38,5 +38,16 @@ check yml files for reference
 do not delete this file
 do not run execution / tests
 
-
-
+at backend deploy yml:
+Run ssh -o StrictHostKeyChecking=no ***@*** 'bash -s' << 'EOF'
+  
+=========================================
+Deployment Verification
+=========================================
+Checking backend process...
+│ 0  │ prodemyx-backend    │ default     │ N/A     │ fork    │ 72311    │ 12s    │ 0    │ online    │ 0%       │ 56.8mb   │ ***   │ disabled │
+Checking MySQL...
+active
+Checking Nginx...
+failed
+Error: Process completed with exit code 1.

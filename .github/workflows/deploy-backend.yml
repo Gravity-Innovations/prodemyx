@@ -246,9 +246,9 @@ jobs:
                 proxy_cache_bypass $http_upgrade;
             }
             
-            location /app {
-                root ${{ secrets.EC2_DASHBOARD_PATH }};
-                try_files $uri /app/index.html;
+            location /app/ {
+                alias ${{ secrets.EC2_DASHBOARD_PATH }}/;
+                try_files $uri $uri/ /app/;
             }
             
             location / {
