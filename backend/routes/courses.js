@@ -7,7 +7,7 @@ router.post("/add", (req, res) => {
     const { 
         title, 
         short_description,
-        short_discription, 
+        short_description, 
         long_description, 
         category_id 
     } = req.body;

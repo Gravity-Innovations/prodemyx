@@ -2,7 +2,7 @@ name: Deploy Dashboard to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'dashboard/**'
       - '.github/workflows/deploy-dashboard.yml'
@@ -19,7 +19,6 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        # UPGRADE NODE: Changed from '18' to '20' to satisfy Vite's requirement.
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: dashboard/package-lock.json
@@ -27,8 +26,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd dashboard
-        # CHANGED TO npm ci: 'npm ci' performs a clean install which is more reliable 
-        # for resolving all nested dependencies (like 'react-is').
         npm ci
 
     - name: Build dashboard
@@ -41,98 +38,68 @@ jobs:
     - name: Add SSH key
       uses: webfactory/ssh-agent@v0.7.0
       with:
-        ssh-private-key: |
-          ${{ secrets.EC2_SSH_KEY }}
-
-    - name: Debug host
-      run: echo "Host='${{ secrets.EC2_HOST }}' User='${{ secrets.EC2_USER }}'"
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
     - name: Create dashboard directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "sudo mkdir -p '${{ secrets.EC2_FRONTEND_PATH }}' && sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} '${{ secrets.EC2_FRONTEND_PATH }}'"
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo mkdir -p ${{ secrets.EC2_FRONTEND_PATH }} && sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} ${{ secrets.EC2_FRONTEND_PATH }}"
 
-    - name: Deploy build to EC2
+    - name: Deploy dashboard build to EC2
       run: |
         rsync -avz --delete \
           -e 'ssh -o StrictHostKeyChecking=no' \
           dashboard/dist/ \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:'${{ secrets.EC2_FRONTEND_PATH }}/'
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_FRONTEND_PATH }}/
 
-    - name: Set correct permissions
+    - name: Set permissions and reload Nginx
       run: |
-        ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "sudo chown -R www-data:www-data '${{ secrets.EC2_FRONTEND_PATH }}' && sudo chmod -R 755 '${{ secrets.EC2_FRONTEND_PATH }}'"
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'EOF'
+        set -e
+        echo "========================================="
+        echo "Dashboard Deployment"
+        echo "========================================="
+        echo "Setting permissions..."
+        sudo chown -R www-data:www-data ${{ secrets.EC2_FRONTEND_PATH }}
+        sudo chmod -R 755 ${{ secrets.EC2_FRONTEND_PATH }}
+        echo "Checking Nginx..."
+        if ! command -v nginx > /dev/null 2>&1; then
+          echo "Nginx not found. Please run backend deployment first."
+          exit 1
+        fi
+        sudo systemctl start nginx || true
+        echo "Testing Nginx configuration..."
+        sudo nginx -t
+        echo "Reloading Nginx..."
+        sudo systemctl reload nginx
+        echo "Verifying dashboard..."
+        if [ -f "${{ secrets.EC2_FRONTEND_PATH }}/index.html" ]; then
+          echo "✓ Dashboard files deployed successfully"
+        else
+          echo "✗ Dashboard index.html not found!"
+          exit 1
+        fi
+        sleep 2
+        if curl -f http://localhost/app > /dev/null 2>&1; then
+          echo "✓ Dashboard is accessible at /app"
+        else
+          echo "⚠ Dashboard may need a moment to be accessible"
+        fi
+        echo "========================================="
+        echo "✓ Dashboard deployment successful!"
+        echo "========================================="
+        echo "Dashboard available at: http://your-domain/app"
+        echo "========================================="
+        EOF
 
-    - name: Ensure Nginx is installed
+    - name: Deployment summary
       run: |
-        ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "if ! command -v nginx >/dev/null 2>&1; then \
-              echo 'Nginx not found. Installing...'; \
-              sudo apt update && sudo apt install nginx -y; \
-              sudo systemctl enable nginx; \
-              sudo systemctl start nginx; \
-           else \
-              echo 'Nginx already installed'; \
-           fi"
-           
-    - name: Create Nginx Config Locally
-      run: |
-        # Create the config file locally on the runner. This is much more reliable.
-        # Note that Nginx variables like $uri do not need to be escaped here.
-        cat > prodemyx-config <<EOF
-          upstream backend_app {
-              server 127.0.0.1:3000;
-          }
-        
-          server {
-              listen 80;
-              server_name _;
-        
-              # 1. PROXY API REQUESTS TO BACKEND (Port 3000)
-              location /api/ {
-                  rewrite ^/api/(.*)$ /\$1 break;
-                  proxy_pass http://backend_app;
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection 'upgrade';
-                  proxy_set_header Host \$host;
-                  proxy_cache_bypass \$http_upgrade;
-              }
-        
-              # 2. SERVE MAIN WEBSITE (Prodemyx)
-              location / {
-                  root ${{ secrets.EC2_PRODEMYX_PATH }};
-                  index index.html index.htm;
-                  try_files \$uri \$uri/ /index.html;
-              }
-        
-              # 3. SERVE SECONDARY FRONTEND APPLICATION
-              location /app/ {
-                  alias ${{ secrets.EC2_FRONTEND_PATH }}/;
-                  try_files \$uri \$uri/ /app/index.html;
-              }
-          }
-EOC
-
-    - name: Deploy Nginx Configuration
-      run: |
-        # Copy the locally created config file to the user's home directory on EC2
-        rsync -e 'ssh -o StrictHostKeyChecking=no' prodemyx-config ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/
-
-    - name: Reload Nginx
-      run: |
-        ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "set -e; \
-           sudo mv ~/prodemyx-config /etc/nginx/sites-available/prodemyx-config; \
-           sudo ln -sf /etc/nginx/sites-available/prodemyx-config /etc/nginx/sites-enabled/prodemyx-config; \
-           sudo rm -f /etc/nginx/sites-enabled/default; \
-           sudo nginx -t; \
-           sudo systemctl reload nginx; \
-           echo 'Dashboard deployment successful!'"
-
-          
+        echo "========================================="
+        echo "Dashboard Deployment Summary"
+        echo "========================================="
+        echo "✓ Dashboard built successfully"
+        echo "✓ Files deployed to EC2"
+        echo "✓ Permissions configured"
+        echo "✓ Nginx reloaded"
+        echo "========================================="
+        echo "Access dashboard at: http://${{ secrets.EC2_HOST }}/app"
+        echo "========================================="

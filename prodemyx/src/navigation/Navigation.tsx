@@ -90,6 +90,7 @@ const AppNavigation = () => {
         <Route path="/course/:id" element={<PublicCourseDetails />} />
 
         
+        {/* TODO: Consolidate these two routes into a single route with an optional :id */}
         <Route path="/payment-success/:id" element={<PaymentSuccess />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failed" element={<PaymentFailed />} />

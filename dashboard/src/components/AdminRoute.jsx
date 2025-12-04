@@ -4,12 +4,23 @@ export default function AdminRoute({ children }) {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // ❌ No token → redirect to login
-  if (!token) return <Navigate to="/login" />;
+  // No token → redirect to login
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
 
-  // ❌ Not an admin → redirect to login
-  if (user.role !== "admin") return <Navigate to="/login" />;
+  // Role-based redirection
+  if (user.role !== "admin") {
+    if (user.role === "instructor") {
+      return <Navigate to="/instructor/dashboard" />;
+    }
+    if (user.role === "student") {
+      return <Navigate to="/student/dashboard" />;
+    }
+    // Default redirect for any other case
+    return <Navigate to="/login" />;
+  }
 
-  // ✔ Allow access
+  // Admin has access
   return children;
 }
