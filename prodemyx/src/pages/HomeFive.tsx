@@ -1,13 +1,12 @@
-import Wrapper from '../layouts/Wrapper';
-import HomeFiveMain from '../components/homes/home-five';
+import HomeTwoMain from '../components/homes/home-two';
 import SEO from '../components/SEO';
 
 const HomeFive = () => {
   return (
-    <Wrapper>
-      <SEO pageTitle={'SkillGro Home Five'} />
-      <HomeFiveMain />
-    </Wrapper>
+    <>
+      <SEO pageTitle={'Prodemyx'} />
+      <HomeTwoMain />
+    </>
   );
 };
 

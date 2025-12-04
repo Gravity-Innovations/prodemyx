@@ -1,9 +1,7 @@
 // src/pages/CartArea.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-   addToCart,
    clear_cart,
-   decrease_quantity,
    remove_cart_product,
 } from "../../../redux/features/cartSlice";
 
@@ -24,7 +22,7 @@ const CartArea = () => {
    const [guestPhoneInput, setGuestPhoneInput] = useState("");
    const [couponCode, setCouponCode] = useState("");
 
-   const handleSubmit = (e: React.FormEvent) => e.preventDefault();
+
 
    /* -----------------------------
       Helper: detect logged-in user
@@ -325,8 +323,8 @@ const CartArea = () => {
                   <div className="mb-30">
                      <div className="empty_bag text-center">
                         <p className="py-3">Your Bag is Empty</p>
-                        <Link to="/shop">
-                           <button className="btn">Go To Shop</button>
+                        <Link to="/Categories">
+                           <button className="btn">Go To Courses</button>
                         </Link>
                      </div>
                   </div>
@@ -340,7 +338,7 @@ const CartArea = () => {
                                  <th className="product__thumb">&nbsp;</th>
                                  <th className="product__name">Product</th>
                                  <th className="product__price">Price</th>
-                                 <th className="product__quantity">Quantity</th>
+                                 {/* <th className="product__quantity">Quantity</th> */}
                                  <th className="product__subtotal">Subtotal</th>
                                  <th className="product__remove">&nbsp;</th>
                               </tr>
@@ -360,34 +358,6 @@ const CartArea = () => {
                                     </td>
 
                                     <td className="product__price">₹{item.price}.00</td>
-
-                                    <td className="product__quantity">
-                                       <div className="cart-plus-minus">
-                                          <input
-                                             type="text"
-                                             onChange={handleSubmit}
-                                             value={item.quantity}
-                                             readOnly
-                                          />
-                                          <div
-                                             onClick={() => dispatch(decrease_quantity(item))}
-                                             className="dec qtybutton"
-                                          >
-                                             -
-                                          </div>
-
-                                          <div
-                                             onClick={() => dispatch(addToCart(item))}
-                                             className="inc qtybutton"
-                                          >
-                                             +
-                                          </div>
-                                       </div>
-                                    </td>
-
-                                    <td className="product__subtotal">
-                                       ₹{(item.price * item.quantity).toFixed(2)}
-                                    </td>
 
                                     <td className="product__remove">
                                        <a

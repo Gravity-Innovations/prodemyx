@@ -1,14 +1,12 @@
-import Wrapper from '../layouts/Wrapper';
-import HomeSevenMain from '../components/homes/home-seven';
+import HomeTwoMain from '../components/homes/home-two';
 import SEO from '../components/SEO';
 
 const HomeSeven = () => {
-   return (
-      <Wrapper>
-         <SEO pageTitle={'SkillGro Home Seven'} />
-         <HomeSevenMain />
-      </Wrapper>
-   );
+  return (
+    <>
+      <SEO pageTitle={'Prodemyx'} />
+      <HomeTwoMain />
+    </>
+  );
 };
-
 export default HomeSeven;

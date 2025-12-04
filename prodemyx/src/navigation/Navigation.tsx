@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+// PUBLIC LAYOUT (GLOBAL HEADER)
+import PublicLayout from "../layouts/PublicLayout";
+
 // PAGES
 import Home from "../pages/Home";
 import HomeTwo from "../pages/HomeTwo";
@@ -14,7 +17,6 @@ import PaymentFailed from "../pages/PaymentFailed";
 import Course from "../pages/Course";
 import Lesson from "../pages/Lesson";
 
-// IMPORTANT: use the single, explicit name for the public course details component
 import PublicCourseDetails from "../pages/PublicCourseDetails";
 
 import About from "../pages/About";
@@ -69,63 +71,66 @@ const AppNavigation = () => {
   return (
     <Router>
       <Routes>
-        {/* HOME */}
+
+        {/* PUBLIC ROUTES WITH GLOBAL HEADER */}
+        <Route element={<PublicLayout />}>
+
+          {/* HOME PAGES */}
+          
+          <Route path="/home-two" element={<HomeTwo />} />
+          <Route path="/home-three" element={<HomeThree />} />
+          <Route path="/home-four" element={<HomeFour />} />
+          <Route path="/home-five" element={<HomeFive />} />
+          <Route path="/home-six" element={<HomeSix />} />
+          <Route path="/home-seven" element={<HomeSeven />} />
+          <Route path="/home-eight" element={<HomeEight />} />
+
+          {/* COURSE (Generic Theme Pages) */}
+          <Route path="/courses" element={<Course />} />
+          <Route path="/lesson" element={<Lesson />} />
+
+          {/* CATEGORY + COURSE (LIVE DB) */}
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/category/:id" element={<CategoryCourses />} />
+          <Route path="/course/:id" element={<PublicCourseDetails />} />
+
+          {/* PAYMENT */}
+          <Route path="/payment-success/:id" element={<PaymentSuccess />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
+
+          {/* STATIC PAGES */}
+          <Route path="/about-us" element={<About />} />
+          <Route path="/instructors" element={<Instructor />} />
+          <Route path="/instructor-details" element={<InstructorDetails />} />
+
+          {/* EVENTS */}
+          <Route path="/events" element={<Event />} />
+          <Route path="/events-details" element={<EventDetails />} />
+
+          {/* SHOP */}
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/shop-details" element={<ShopDetails />} />
+
+          {/* CART / WISHLIST */}
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/check-out" element={<CheckOut />} />
+
+          {/* BLOG */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog-2" element={<BlogTwo />} />
+          <Route path="/blog-3" element={<BlogThree />} />
+          <Route path="/blog-details" element={<BlogDetails />} />
+
+          {/* AUTH */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/registration" element={<Registration />} />
+          <Route path="/contact" element={<Contact />} />
+
+        </Route>
         <Route path="/" element={<Home />} />
-        <Route path="/home-two" element={<HomeTwo />} />
-        <Route path="/home-three" element={<HomeThree />} />
-        <Route path="/home-four" element={<HomeFour />} />
-        <Route path="/home-five" element={<HomeFive />} />
-        <Route path="/home-six" element={<HomeSix />} />
-        <Route path="/home-seven" element={<HomeSeven />} />
-        <Route path="/home-eight" element={<HomeEight />} />
-
-        {/* THEME / COURSE (keep generic listing if you need it) */}
-        <Route path="/courses" element={<Course />} />
-        <Route path="/lesson" element={<Lesson />} />
-
-
-        {/* CATEGORY + COURSE (live DB) */}
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/category/:id" element={<CategoryCourses />} />
-        <Route path="/course/:id" element={<PublicCourseDetails />} />
-
-        
-        {/* TODO: Consolidate these two routes into a single route with an optional :id */}
-        <Route path="/payment-success/:id" element={<PaymentSuccess />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-failed" element={<PaymentFailed />} />
-
-
-        {/* STATIC PAGES */}
-        <Route path="/about-us" element={<About />} />
-        <Route path="/instructors" element={<Instructor />} />
-        <Route path="/instructor-details" element={<InstructorDetails />} />
-
-        {/* EVENTS */}
-        <Route path="/events" element={<Event />} />
-        <Route path="/events-details" element={<EventDetails />} />
-
-        {/* SHOP */}
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/shop-details" element={<ShopDetails />} />
-
-        {/* CART / WISHLIST */}
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/check-out" element={<CheckOut />} />
-
-        {/* BLOG */}
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog-2" element={<BlogTwo />} />
-        <Route path="/blog-3" element={<BlogThree />} />
-        <Route path="/blog-details" element={<BlogDetails />} />
-
-        {/* AUTH */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/registration" element={<Registration />} />
-        <Route path="/contact" element={<Contact />} />
-
-        {/* INSTRUCTOR */}
+        {/* INSTRUCTOR ROUTES (NO HEADER) */}
         <Route path="/instructor-dashboard" element={<InstructorDashboard />} />
         <Route path="/instructor-profile" element={<InstructorProfile />} />
         <Route path="/instructor-enrolled-courses" element={<InstructorEnrollCourse />} />
@@ -139,7 +144,7 @@ const AppNavigation = () => {
         <Route path="/instructor-assignment" element={<InstructorAssignment />} />
         <Route path="/instructor-setting" element={<InstructorSetting />} />
 
-        {/* STUDENT */}
+        {/* STUDENT ROUTES (NO HEADER) */}
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/student-profile" element={<StudentProfile />} />
         <Route path="/student-enrolled-courses" element={<StudentEnrollCourse />} />
@@ -151,6 +156,7 @@ const AppNavigation = () => {
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
+
       </Routes>
     </Router>
   );

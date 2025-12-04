@@ -12,7 +12,7 @@ import NavMenu from "../../../layouts/headers/menu/NavMenu"
 
 const HeaderTwo = () => {
 
-  // const [selectedOption, setSelectedOption] = React.useState(null);
+   // const [selectedOption, setSelectedOption] = React.useState(null);
 
    // const handleSelectChange = (option: React.SetStateAction<null>) => {
    //    setSelectedOption(option);
@@ -26,30 +26,30 @@ const HeaderTwo = () => {
       <>
          <header>
             <div id="header-fixed-height"></div>
-            <div id="sticky-header" style={{background:"#000431"}} className={`tg-header__area tg-header__style-two ${sticky ? "sticky-menu" : ""}`}>
+            <div id="sticky-header" style={{ background: "#000431" }} className={`tg-header__area tg-header__style-two ${sticky ? "sticky-menu" : ""}`}>
                <div className="container">
                   <div className="row">
                      <div className="col-12">
                         <div className="tgmenu__wrap">
                            <nav className="tgmenu__nav">
                               <div className="logo">
-                                 <Link to="/"><img src="/assets/img/logo/logo.png" style={{width:'30%'}} alt="Logo" /></Link>
+                                 <Link to="/"><img src="/assets/img/logo/logo.png" style={{ width: '30%' }} alt="Logo" /></Link>
                               </div>
                               <div className="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xl-flex">
                                  <NavMenu />
                               </div>
-                            
+
                               <div className="tgmenu__action tgmenu__action-two">
                                  <ul className="list-wrap">
-                                  
+
                                     <li className="header-btn login-btn">
                                        <Link to="/" className="btn">Get Started</Link>
                                     </li>
                                  </ul>
                               </div>
-                              {/* <div className="mobile-login-btn">
-                                 <Link to="/"><InjectableSvg src="/assets/img/icons/user.svg" alt="" className="injectable" /></Link>
-                              </div> */}
+                              <div className="mobile-login-btn">
+                                 <Link to="/"><img src="/assets/img/icons/user.svg" alt="" className="injectable" /></Link>
+                              </div>
                               <div onClick={() => setIsActive(true)} className="mobile-nav-toggler"><i className="tg-flaticon-menu-1"></i></div>
                            </nav>
                         </div>
