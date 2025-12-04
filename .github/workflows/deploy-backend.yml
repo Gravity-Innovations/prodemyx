@@ -217,7 +217,7 @@ jobs:
             client_max_body_size 50M;
             
             location /api/ {
-                proxy_pass http://backend_app/api/;
+                proxy_pass http://backend_app;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection 'upgrade';
@@ -231,7 +231,7 @@ jobs:
             }
             
             location /api-docs {
-                proxy_pass http://backend_app/api/api-docs;
+                proxy_pass http://backend_app/api-docs;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection 'upgrade';
@@ -244,7 +244,7 @@ jobs:
             
             location /app/ {
                 alias /var/www/prodemyx-frontend/;
-                try_files $uri $uri/ /index.html;
+                try_files $uri $uri/ /app/index.html;
             }
             
             location /phpmyadmin {
