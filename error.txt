@@ -1,5 +1,16 @@
 GET http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/app/ 500 (Internal Server Error) - fix this first
 
+Request URL
+http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com/app/
+Request Method
+GET
+Status Code
+500 Internal Server Error
+Remote Address
+16.171.24.103:80
+Referrer Policy
+strict-origin-when-cross-origin
+
 Prodemyx Deployed:
 
 Frontend: http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com

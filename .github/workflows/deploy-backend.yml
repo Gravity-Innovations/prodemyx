@@ -247,8 +247,7 @@ jobs:
             }
             
             location /app/ {
-                root ${{ secrets.EC2_DASHBOARD_PATH }};
-                index index.html;
+                alias ${{ secrets.EC2_DASHBOARD_PATH }}/;
                 try_files $uri $uri/ /index.html;
             }
             
