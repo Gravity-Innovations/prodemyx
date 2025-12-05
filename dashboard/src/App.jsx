@@ -32,7 +32,7 @@ import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Login />} />
