@@ -41,7 +41,7 @@ const InstructorAssignedCourses = () => {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
 
             // Fetch all courses and filter by instructor
-            const data = await apiFetch("/api/courses");
+            const data = await apiFetch("/courses");
             const instructorCourses = data.filter(course => course.instructor_id === user.id);
             setAssignedCourses(Array.isArray(instructorCourses) ? instructorCourses : []);
         } catch (err) {

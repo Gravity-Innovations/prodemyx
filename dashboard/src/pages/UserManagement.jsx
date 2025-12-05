@@ -57,7 +57,7 @@ export default function UserManagement() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const data = await apiFetch("/api/users", { method: "GET" });
+      const data = await apiFetch("/users", { method: "GET" });
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
@@ -72,8 +72,7 @@ export default function UserManagement() {
 
     try {
       setBusyId(user.id);
-      await apiFetch(`/api/users/${user.id}`, { method: "DELETE" });
-      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+              await apiFetch(`/users/${user.id}`, { method: "DELETE" });      setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setShowModal(false);
     } catch (err) {
       console.error(err);
@@ -126,7 +125,7 @@ export default function UserManagement() {
         updateData.password = formData.password;
       }
 
-      await apiFetch(`/api/users/${selectedUser.id}`, {
+      await apiFetch(`/users/${selectedUser.id}`, {
         method: "PUT",
         body: JSON.stringify(updateData),
       });

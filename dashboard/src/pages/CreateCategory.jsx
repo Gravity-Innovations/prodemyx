@@ -19,7 +19,7 @@ export default function CreateCategory() {
     }
 
     try {
-      const res = await fetch(`${BASE_URL}/api/categories`, {
+      const res = await fetch(`${BASE_URL}/categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

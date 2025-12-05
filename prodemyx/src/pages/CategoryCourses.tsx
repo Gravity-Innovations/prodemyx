@@ -48,7 +48,7 @@ const CategoryCourses: React.FC = () => {
 
   const loadCategoryName = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/categories`, {
+      const res = await fetch(`${API_BASE_URL}/categories`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

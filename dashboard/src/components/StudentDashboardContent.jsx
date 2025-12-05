@@ -40,7 +40,7 @@ const StudentDashboardContent = () => {
       try {
         setLoading(true);
         // Fetch courses - in a real app, this would filter by student enrollment
-        const data = await apiFetch("/api/courses");
+        const data = await apiFetch("/courses");
         setEnrolledCourses(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load courses:", err);

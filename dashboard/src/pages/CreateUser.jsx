@@ -34,7 +34,7 @@ export default function CreateUser() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/api/users`, {
+      const res = await fetch(`${BASE_URL}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

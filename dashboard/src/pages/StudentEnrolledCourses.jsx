@@ -43,7 +43,7 @@ const StudentEnrolledCourses = () => {
         try {
             setLoading(true);
 
-            const data = await apiFetch("/api/student/enrolled-courses");
+            const data = await apiFetch("/student/enrolled-courses");
 
             setEnrolledCourses(Array.isArray(data) ? data : []);
 

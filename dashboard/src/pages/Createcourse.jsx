@@ -50,8 +50,12 @@ export default function CreateCourse() {
       const formData = new FormData();
       formData.append("material", file);
 
+      const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/upload-material`, {
         method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: formData,
       });
 
@@ -89,8 +93,12 @@ export default function CreateCourse() {
       const formData = new FormData();
       formData.append("cover", file);
 
+      const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/upload-cover`, {
         method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: formData,
       });
 
@@ -117,8 +125,8 @@ export default function CreateCourse() {
     async function loadAll() {
       try {
         const [cats, users] = await Promise.all([
-          apiFetch("/api/categories", { method: "GET" }),
-          apiFetch("/api/users", { method: "GET" }),
+          apiFetch("/categories", { method: "GET" }),
+          apiFetch("/users", { method: "GET" }),
         ]);
 
         if (!mounted) return;
@@ -167,7 +175,7 @@ export default function CreateCourse() {
     setSubmitting(true);
 
     try {
-      await apiFetch("/api/courses", {
+      await apiFetch("/courses", {
         method: "POST",
         body: JSON.stringify(payload),
       });

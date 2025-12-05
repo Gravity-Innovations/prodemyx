@@ -46,7 +46,7 @@ export default function CourseManagement() {
     setError(null);
 
     try {
-      const data = await apiFetch("/api/courses");
+      const data = await apiFetch("/courses");
       setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to load courses:", err);
@@ -62,8 +62,7 @@ export default function CourseManagement() {
 
     setBusyId(courseId);
     try {
-      await apiFetch(`/api/courses/${courseId}`, { method: "DELETE" });
-      setCourses((prev) => prev.filter((c) => c.id !== courseId));
+              await apiFetch(`/courses/${courseId}`, { method: "DELETE" });      setCourses((prev) => prev.filter((c) => c.id !== courseId));
       setShowModal(false);
     } catch (err) {
       console.error("Delete failed:", err);

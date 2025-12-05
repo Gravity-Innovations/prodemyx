@@ -37,7 +37,7 @@ export default function CategoryCourses() {
 
   const loadCategoryName = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/api/categories`, {
+      const res = await fetch(`${BASE_URL}/categories`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

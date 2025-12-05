@@ -38,9 +38,9 @@ export default function Reports() {
     const loadData = async () => {
       try {
         const [summaryRes, activityRes, completionRes] = await Promise.all([
-          apiFetch("/api/reports/summary"),
-          apiFetch("/api/reports/activity"),
-          apiFetch("/api/reports/completion")
+          apiFetch("/reports/summary"),
+          apiFetch("/reports/activity"),
+          apiFetch("/reports/completion")
         ]);
 
         setSummary(summaryRes);

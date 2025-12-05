@@ -35,7 +35,7 @@ export default function BuyButton({
 
     try {
       // 1) CREATE RAZORPAY ORDER
-      const order = await apiFetch("/api/payment/order", {
+      const order = await apiFetch("/payment/order", {
         method: "POST",
         body: JSON.stringify({
           amount,
@@ -68,7 +68,7 @@ export default function BuyButton({
         handler: async function (response: any) {
           try {
             // 3) VERIFY PAYMENT
-            await apiFetch("/api/payment/verify", {
+            await apiFetch("/payment/verify", {
               method: "POST",
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,

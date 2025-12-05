@@ -42,8 +42,8 @@ export default function EditCourse() {
     async function loadData() {
       try {
         const [cats, users, course] = await Promise.all([
-          apiFetch("/api/categories", { method: "GET" }),
-          apiFetch("/api/users", { method: "GET" }),
+          apiFetch("/categories", { method: "GET" }),
+          apiFetch("/users", { method: "GET" }),
           apiFetch(`/public/courses/${id}`, { method: "GET" }),
         ]);
 

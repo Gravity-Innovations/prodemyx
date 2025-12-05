@@ -43,7 +43,7 @@ const InstructorDashboard = () => {
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const data = await apiFetch("/api/reports/summary");
+        const data = await apiFetch("/reports/summary");
         setStats({
           total_users: data.total_users,
           total_courses: data.total_courses,

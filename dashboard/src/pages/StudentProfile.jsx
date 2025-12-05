@@ -46,7 +46,7 @@ const StudentProfile = () => {
     const loadUserProfile = async () => {
         try {
             setLoading(true);
-            const data = await apiFetch("/api/me");
+            const data = await apiFetch("/me");
             setUser(data);
             setFormData({
                 name: data.name || "",
@@ -83,7 +83,7 @@ const StudentProfile = () => {
                 updateData.password = formData.password;
             }
 
-            await apiFetch(`/api/users/${user.id}`, {
+            await apiFetch(`/users/${user.id}`, {
                 method: "PUT",
                 body: JSON.stringify(updateData),
             });

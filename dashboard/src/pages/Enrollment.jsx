@@ -15,7 +15,7 @@ export default function Enrollment() {
 
   async function loadEnrollments() {
     try {
-      const data = await apiFetch("/api/enrollments");
+      const data = await apiFetch("/enrollments");
       setEnrollments(data.enrollments);
     } catch (err) {
       console.error(err);
@@ -28,7 +28,7 @@ export default function Enrollment() {
     if (!status) return;
 
     try {
-      await apiFetch(`/api/enrollments/${id}`, {
+      await apiFetch(`/enrollments/${id}`, {
         method: "PUT",
         body: JSON.stringify({ status }),
       });
@@ -42,7 +42,7 @@ export default function Enrollment() {
     if (!confirm("Remove this student from the course?")) return;
 
     try {
-      await apiFetch(`/api/enrollments/${id}`, {
+      await apiFetch(`/enrollments/${id}`, {
         method: "DELETE",
       });
       loadEnrollments();

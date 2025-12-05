@@ -114,7 +114,7 @@ const CartArea = () => {
          const course_ids = productItem.map((i: any) => i.id);
 
          // 1) Create Razorpay order
-         const order = await apiFetch("/api/payment/order", {
+         const order = await apiFetch("/payment/order", {
             method: "POST",
             body: JSON.stringify({
                amount,
@@ -145,7 +145,7 @@ const CartArea = () => {
 
             handler: async function (response: any) {
                try {
-                  await apiFetch("/api/payment/verify", {
+                  await apiFetch("/payment/verify", {
                      method: "POST",
                      body: JSON.stringify({
                         razorpay_order_id: response.razorpay_order_id,
