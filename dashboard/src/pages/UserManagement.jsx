@@ -80,8 +80,7 @@ export default function UserManagement() {
       setBusyId(user.id);
               await apiFetch(`/users/${user.id}`, { method: "DELETE" });      setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setShowModal(false);
-    } catch (err) . {
-      console.error(err);
+          } catch (err) {      console.error(err);
       alert(err.message || "Failed to delete user");
     } finally {
       setBusyId(null);

@@ -77,7 +77,13 @@ export default function CategoryCourses() {
               className="cursor-pointer bg-white rounded-2xl border shadow-md hover:shadow-xl transition overflow-hidden p-5"
             >
               <img
-                src={course.photo || "/placeholder.jpg"}
+                src={
+                  course.photo && course.photo.startsWith("http")
+                    ? course.photo
+                    : course.photo
+                      ? `${BASE_URL}${course.photo}`
+                      : "/placeholder.jpg"
+                }
                 alt={course.title}
                 className="w-full h-48 object-cover rounded-xl mb-4"
                 onError={(e) => {

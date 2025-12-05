@@ -102,7 +102,13 @@ export default function Categories() {
 
             <div className="course-img-wrapper">
               <img
-                src={course.photo || "/assets/img/courses/default.png"}
+                src={
+                  course.photo && course.photo.startsWith("http")
+                    ? course.photo
+                    : course.photo
+                      ? `${API_BASE_URL}${course.photo}`
+                      : "/assets/img/courses/default.png"
+                }
                 alt={course.title}
                 className="course-img"
               />
