@@ -30,7 +30,7 @@ jobs:
 
     - name: Build dashboard
       env:
-        VITE_API_URL: http://${{ secrets.EC2_HOST }}
+        VITE_API_URL: ${{ secrets.VITE_API_URL }}
       run: |
         cd dashboard
         npm run build

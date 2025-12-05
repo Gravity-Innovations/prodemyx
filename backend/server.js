@@ -833,6 +833,34 @@ app.get("/api/public/categories", async (_, res) => {
 // ADMIN list
 /**
  * @swagger
+ * /api/admin/courses:
+ *   get:
+ *     summary: Get all courses for admin dashboard (Admin only)
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of courses for admin
+ */
+app.get("/api/admin/courses", auth, adminOnly, async (_, res) => {
+  const [rows] = await pool.query(`
+    SELECT 
+      c.*,
+      cat.name AS category_name,
+      u.name AS instructor_name
+    FROM courses c
+    LEFT JOIN categories cat ON cat.id = c.category_id
+    LEFT JOIN users u ON u.id = c.instructor_id
+    ORDER BY c.id DESC
+  `);
+
+  res.json(rows);
+});
+
+// ADMIN list
+/**
+ * @swagger
  * /api/courses:
  *   get:
  *     summary: Get all courses (Authenticated)

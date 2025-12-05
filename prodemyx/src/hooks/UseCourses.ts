@@ -20,7 +20,7 @@ const UseCourses = () => {
 
       const fetchCategories = async () => {
          try {
-            const categoriesData = await apiFetch('/categories');
+            const categoriesData = await apiFetch('/public/categories');
             setCategories(categoriesData);
          } catch (error) {
             console.error("Failed to fetch categories:", error);

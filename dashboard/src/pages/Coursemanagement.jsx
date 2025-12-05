@@ -46,7 +46,7 @@ export default function CourseManagement() {
     setError(null);
 
     try {
-      const data = await apiFetch("/courses");
+      const data = await apiFetch("/admin/courses");
       setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to load courses:", err);
