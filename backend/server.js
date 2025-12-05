@@ -211,7 +211,7 @@ if (!fs.existsSync(materialsDir)) fs.mkdirSync(materialsDir, { recursive: true }
 if (!fs.existsSync(coverDir)) fs.mkdirSync(coverDir, { recursive: true });
 
 // expose folder
-app.use("/uploads", express.static(uploadsRoot));
+app.use("/api/uploads", express.static(uploadsRoot));
 
 
 // ===== MATERIAL UPLOAD =====
@@ -819,7 +819,7 @@ app.post("/api/categories", auth, adminOnly, async (req, res) => {
  *       200:
  *         description: List of categories
  */
-app.get("/public/categories", async (_, res) => {
+app.get("/api/public/categories", async (_, res) => {
   const [rows] = await pool.query(
     "SELECT id, name, description FROM categories ORDER BY name ASC"
   );
@@ -1131,7 +1131,7 @@ app.put(
  *       200:
  *         description: List of public courses
  */
-app.get("/public/courses", async (_, res) => {
+app.get("/api/public/courses", async (_, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
@@ -1180,7 +1180,7 @@ app.get("/public/courses", async (_, res) => {
  *       404:
  *         description: Course not found
  */
-app.get("/public/courses/:id", async (req, res) => {
+app.get("/api/public/courses/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
