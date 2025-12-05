@@ -30,6 +30,14 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
+// Middleware to rewrite URL if it detects a double /api prefix
+app.use((req, res, next) => {
+  if (req.url.startsWith("/api/api/")) {
+    req.url = req.url.replace("/api/api", "/api");
+  }
+  next();
+});
+
 // ========================================================
 // SWAGGER SETUP
 // ========================================================
