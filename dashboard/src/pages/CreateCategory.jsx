@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 
+import { apiFetch } from "../api";
 export default function CreateCategory() {
   const navigate = useNavigate();
 
@@ -18,24 +19,13 @@ export default function CreateCategory() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/categories", {
+      await apiFetch("/api/categories", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim(),
         }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Failed to create category");
-        return;
-      }
 
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);

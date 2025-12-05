@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 type Course = {
   id: number;
@@ -28,10 +29,8 @@ export default function Categories() {
       setLoading(true);
       setError(null);
       try {
-        // public endpoint that returns all courses with category_name
-        const res = await fetch("http://localhost:5000/public/courses");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const courses: Course[] = await res.json();
+        // public endpoint, no token needed
+        const courses: Course[] = await apiFetch("/public/courses");
 
         // group by category_name (fallback to "Uncategorized")
         const map = new Map<string, CategoryGroup>();

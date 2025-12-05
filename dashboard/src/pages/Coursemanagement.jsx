@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InstructorSidebar from "../components/InstructorSidebar";
 import Sidebar from "../components/sidebar";
+import { apiFetch } from "../api";
 
 export default function CourseManagement() {
   const navigate = useNavigate();
@@ -16,23 +17,6 @@ export default function CourseManagement() {
   const [showModal, setShowModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [modalMode, setModalMode] = useState('view'); // 'view' or 'edit'
-
-  // Token-aware API helper
-  const apiFetch = async (url, options = {}) => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000${url}`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      ...options,
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || "API error");
-    }
-    return data;
-  };
 
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem("user") || "null");

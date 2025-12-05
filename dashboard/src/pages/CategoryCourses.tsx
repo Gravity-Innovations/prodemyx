@@ -1,56 +1,63 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
+
+type Course = {
+  id: number;
+  title: string;
+  price?: number | null;
+  photo?: string | null;
+  category_id?: number | null;
+};
+
+type Category = {
+  id: number;
+  name: string;
+};
 
 export default function CategoryCourses() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [courses, setCourses] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [categoryName, setCategoryName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadCourses();
-    loadCategoryName();
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch courses and categories at the same time
+        const [allCourses, allCategories] = await Promise.all([
+          apiFetch("/public/courses") as Promise<Course[]>, // Public endpoint
+          apiFetch("/api/categories") as Promise<Category[]>, // Protected endpoint
+        ]);
+
+        // Filter courses for the current category
+        const filtered = allCourses.filter(
+          (c) => String(c.category_id) === String(id)
+        );
+        setCourses(filtered);
+
+        // Find the category name from the fetched categories
+        const match = allCategories.find((c) => String(c.id) === String(id));
+        if (match) {
+          setCategoryName(match.name);
+        } else if (filtered.length > 0) {
+          // Fallback if category name isn't in the protected list for some reason
+          setCategoryName("Category Courses");
+        }
+      } catch (err: any) {
+        console.error("Failed to load category courses:", err);
+        setError("Unable to load courses for this category.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, [id]);
-
-  // Load courses under this category (FROM /public/courses)
-  const loadCourses = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/public/courses");
-      if (!res.ok) throw new Error("Failed to load courses");
-
-      const all = await res.json();
-      const filtered = all.filter(
-        (c) => String(c.category_id) === String(id)
-      );
-
-      setCourses(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Unable to load courses.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load category name using /api/categories
-  const loadCategoryName = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/categories", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-
-      const match = data.find((c) => String(c.id) === String(id));
-      if (match) setCategoryName(match.name);
-    } catch (err) {
-      console.error("Failed to load category name:", err);
-    }
-  };
 
   return (
     <div className="px-6 md:px-12 py-16 max-w-7xl mx-auto">
@@ -61,9 +68,7 @@ export default function CategoryCourses() {
       </h1>
 
       {/* LOADING */}
-      {loading && (
-        <p className="text-center text-gray-500">Loading...</p>
-      )}
+      {loading && <p className="text-center text-gray-500">Loading...</p>}
 
       {/* ERROR */}
       {!loading && error && (
@@ -92,7 +97,7 @@ export default function CategoryCourses() {
                 alt={course.title}
                 className="w-full h-48 object-cover rounded-xl mb-4"
                 onError={(e) => {
-                  e.target.src = "/placeholder.jpg";
+                  (e.target as HTMLImageElement).src = "/placeholder.jpg";
                 }}
               />
 

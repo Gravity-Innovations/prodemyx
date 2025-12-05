@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 export default function CategoryCourses() {
   const { id } = useParams();
@@ -11,44 +12,35 @@ export default function CategoryCourses() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadCourses();
-    loadCategoryName();
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch courses and categories at the same time
+        const [allCourses, allCategories] = await Promise.all([
+          apiFetch("/public/courses"), // Public endpoint
+          apiFetch("/api/categories"),   // Protected endpoint
+        ]);
+
+        // Filter courses for the current category
+        const filtered = allCourses.filter(
+          (c) => String(c.category_id) === String(id)
+        );
+        setCourses(filtered);
+
+        // Find the category name from the fetched categories
+        const match = allCategories.find((c) => String(c.id) === String(id));
+        if (match) setCategoryName(match.name);
+
+      } catch (err) {
+        console.error("Failed to load category courses:", err);
+        setError("Unable to load courses for this category.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, [id]);
-
-  const loadCourses = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/public/courses");
-      if (!res.ok) throw new Error("Failed to load courses");
-
-      const all = await res.json();
-      const filtered = all.filter(
-        (c) => String(c.category_id) === String(id)
-      );
-
-      setCourses(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Unable to load courses.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCategoryName = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/categories", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await res.json();
-      const match = data.find((c) => String(c.id) === String(id));
-      if (match) setCategoryName(match.name);
-    } catch (err) {
-      console.error("Failed to load category name:", err);
-    }
-  };
 
   return (
     <div className="px-6 md:px-12 py-16 max-w-7xl mx-auto">

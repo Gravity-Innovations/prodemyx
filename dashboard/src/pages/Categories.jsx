@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { apiFetch } from "../api";
 export default function Categories() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,11 +12,8 @@ export default function Categories() {
     async function load() {
       setLoading(true);
       setError(null);
-      try {
-        const res = await fetch("http://localhost:5000/public/courses");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const courses = await res.json();
+      try { // Public endpoint, no token needed
+        const courses = await apiFetch("/public/courses");
 
         const map = new Map();
         for (const c of courses) {

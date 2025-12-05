@@ -1,22 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
-// 🔐 Token-based API fetch
-const apiFetch = async (url, options = {}) => {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(`http://localhost:5000${url}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    },
-    ...options,
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "API Error");
-  return data;
-};
+import { apiFetch } from "../api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
