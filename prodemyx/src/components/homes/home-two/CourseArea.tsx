@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../../../api";
 
 interface Course {
   id: number;
@@ -17,7 +18,7 @@ const CourseArea = ({ style }: { style: boolean }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch('http://localhost:5000/public/courses');
+        const response = await fetch(`${API_BASE_URL}/public/courses`);
         const data = await response.json();
         setCourses(data);
       } catch (error) {
@@ -101,11 +102,11 @@ const CourseArea = ({ style }: { style: boolean }) => {
           </div>
         }
         <div className="row justify-content-center">
-            <div className="col-lg-3">
-                <div className="browse-btn mt-20 text-center">
-                    <Link to="/categories" className="btn">View All</Link>
-                </div>
+          <div className="col-lg-3">
+            <div className="browse-btn mt-20 text-center">
+              <Link to="/categories" className="btn">View All</Link>
             </div>
+          </div>
         </div>
       </div>
     </section>

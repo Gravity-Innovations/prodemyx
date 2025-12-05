@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./CourseDetailsArea.css";
+import { API_BASE_URL } from "../../../api";
 
 interface Course {
   photo?: string;
@@ -16,7 +17,7 @@ const CourseDetailsArea = () => {
 
   useEffect(() => {
     async function loadCourse() {
-      const res = await fetch(`http://localhost:5000/public/courses/${id}`);
+      const res = await fetch(`${API_BASE_URL}/public/courses/${id}`);
       const data = await res.json();
       setCourse(data);
     }
@@ -39,7 +40,7 @@ const CourseDetailsArea = () => {
                   course.photo
                     ? course.photo.startsWith("http")
                       ? course.photo
-                      : `http://localhost:5000${course.photo}`
+                      : `${API_BASE_URL}${course.photo}`
                     : "/assets/img/courses/courses_details.jpg"
                 }
                 alt="Course"

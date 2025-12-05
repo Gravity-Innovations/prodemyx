@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../api";
 
 interface Course {
   id: number;
@@ -31,7 +32,7 @@ const CategoryCourses: React.FC = () => {
 
   const loadCourses = async () => {
     try {
-      const res = await fetch("http://localhost:5000/public/courses");
+      const res = await fetch(`${API_BASE_URL}/public/courses`);
       const data: Course[] = await res.json();
 
       // Filter by category
@@ -47,7 +48,7 @@ const CategoryCourses: React.FC = () => {
 
   const loadCategoryName = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categories", {
+      const res = await fetch(`${API_BASE_URL}/api/categories`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

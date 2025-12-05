@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { apiFetch } from "../api";
+import { apiFetch, API_BASE_URL } from "../api";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/features/cartSlice";
 
@@ -68,7 +68,7 @@ export default function PublicCourseDetails() {
                     course.photo
                       ? course.photo.startsWith("http")
                         ? course.photo
-                        : `http://localhost:5000${course.photo}`
+                        : `${API_BASE_URL}${course.photo}`
                       : "/assets/img/courses/courses_details.jpg"
                   }
                   alt={course.title}
@@ -89,7 +89,7 @@ export default function PublicCourseDetails() {
                     {expanded
                       ? course.long_description
                       : (course.long_description || "").slice(0, 300) +
-                        ((course.long_description || "").length > 300 ? "..." : "")}
+                      ((course.long_description || "").length > 300 ? "..." : "")}
                   </p>
 
                   {course.long_description &&
@@ -182,7 +182,7 @@ export default function PublicCourseDetails() {
                       s.photo
                         ? s.photo.startsWith("http")
                           ? s.photo
-                          : `http://localhost:5000${s.photo}`
+                          : `${API_BASE_URL}${s.photo}`
                         : "/assets/img/courses/courses_details.jpg"
                     }
                     className="mb-3 rounded"
