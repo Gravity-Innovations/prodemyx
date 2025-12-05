@@ -14,19 +14,19 @@ export default function InstructorSidebar() {
     {
       icon: "dashboard",
       label: "Dashboard",
-      path: "/app/instructor/dashboard",
+      path: "/instructor/dashboard",
       active: true,
     },
     {
       icon: "person",
       label: "My Profile",
-      path: "/app/instructor/profile",
+      path: "/instructor/profile",
       active: true,
     },
     {
       icon: "school",
       label: "Assigned Courses",
-      path: "/app/instructor/assigned-courses",
+      path: "/instructor/assigned-courses",
       active: true,
     },
     // Commented out menu items as requested

@@ -17,5 +17,11 @@ export async function apiFetch(endpoint, options = {}) {
     throw new Error("API request failed: " + res.status);
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch (e) {
+    // Handle cases where the response is not JSON
+    // This can happen on 204 No Content or other non-JSON responses
+    return { success: true, message: "Request successful, no content." };
+  }
 }

@@ -58,6 +58,12 @@ export default function CourseManagement() {
   };
 
   const handleDelete = async (courseId) => {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (currentUser?.role !== "admin") {
+      alert("You do not have permission to delete courses.");
+      return;
+    }
+
     if (!window.confirm("Delete this course? This action cannot be undone.")) return;
 
     setBusyId(courseId);

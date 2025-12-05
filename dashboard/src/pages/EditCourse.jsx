@@ -65,8 +65,8 @@ export default function EditCourse() {
           setScheduleEvening(!!course.schedule_evening);
           setScheduleWeekend(!!course.schedule_weekend);
 
-          setExistingCoverUrl(course.photo ? `${BASE_URL}/uploads/course-covers/${course.photo}` : "");
-          setExistingMaterialUrl(course.material_url ? `${BASE_URL}/uploads/materials/${course.material_url}` : "");
+          setExistingCoverUrl(course.photo || "");
+          setExistingMaterialUrl(course.material_url || "");
         }
       } catch (err) {
         alert("Failed to load course.");

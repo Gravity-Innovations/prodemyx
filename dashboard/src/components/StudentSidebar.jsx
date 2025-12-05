@@ -15,19 +15,19 @@ const StudentSidebar = () => {
         {
             icon: "dashboard",
             label: "Dashboard",
-            path: "/app/student/dashboard",
+            path: "/student/dashboard",
             active: true,
         },
         {
             icon: "person",
             label: "My Profile",
-            path: "/app/student/profile",
+            path: "/student/profile",
             active: true,
         },
         {
             icon: "school",
             label: "Enrolled Courses",
-            path: "/app/student/enrolled-courses",
+            path: "/student/enrolled-courses",
             active: true,
         },
         // Commented out menu items as requested

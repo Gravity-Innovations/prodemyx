@@ -68,13 +68,19 @@ export default function UserManagement() {
   };
 
   const handleDelete = async (user) => {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (currentUser?.role !== "admin") {
+      alert("You do not have permission to delete users.");
+      return;
+    }
+
     if (!window.confirm(`Delete user ${user.name || ""}?`)) return;
 
     try {
       setBusyId(user.id);
               await apiFetch(`/users/${user.id}`, { method: "DELETE" });      setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setShowModal(false);
-    } catch (err) {
+    } catch (err) . {
       console.error(err);
       alert(err.message || "Failed to delete user");
     } finally {
