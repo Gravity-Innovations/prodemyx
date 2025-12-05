@@ -8,7 +8,7 @@ const StudentSidebar = () => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        navigate("/app/login");
+        navigate("/login");
     };
 
     const menuItems = [

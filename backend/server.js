@@ -1178,8 +1178,8 @@ app.get("/api/public/courses", async (_, res) => {
 
     const mapped = rows.map((c) => ({
       ...c,
-      photo: c.photo ? `${publicUrl}${c.photo}` : null,
-      material_url: c.file ? `${publicUrl}${c.file}` : null,
+      photo: c.photo ? `${publicUrl}/api${c.photo}` : null,
+      material_url: c.file ? `${publicUrl}/api${c.file}` : null,
     }));
 
     res.json(mapped);

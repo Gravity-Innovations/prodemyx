@@ -7,7 +7,7 @@ export default function InstructorSidebar() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/app/login");
+    navigate("/login");
   };
 
   const menuItems = [
