@@ -46,7 +46,7 @@ export default function CourseManagement() {
     setError(null);
 
     try {
-      const data = await apiFetch("/admin/courses");
+      const data = await apiFetch("/courses");
       setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to load courses:", err);
@@ -92,6 +92,32 @@ export default function CourseManagement() {
     setShowModal(false);
     setSelectedCourse(null);
   };
+
+  const formatSchedule = (scheduleString) => {
+    if (!scheduleString) return "Not Scheduled";
+
+    let schedules = [];
+    try {
+        schedules = JSON.parse(scheduleString);
+        if (!Array.isArray(schedules) || schedules.length === 0) return "Not Scheduled";
+    } catch (e) {
+        // Fallback for old string format
+        const scheduleParts = scheduleString.split('; ');
+        return scheduleParts.map((s, i) => <div key={i}>{s}</div>);
+    }
+
+    return (
+        <div>
+            {schedules.map((schedule, index) => {
+                if (!schedule || !schedule.meeting_date) return null;
+                const date = new Date(schedule.meeting_date);
+                const dateString = date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                const timeString = schedule.meeting_time ? ` at ${schedule.meeting_time}` : '';
+                return <div key={index}>{`${dateString}${timeString} (${schedule.meeting_schedule || 'N/A'})`}</div>;
+            })}
+        </div>
+    );
+};
 
   return (
     <div className="font-display bg-background-light dark:bg-background-dark relative flex min-h-screen w-full">
@@ -336,6 +362,15 @@ export default function CourseManagement() {
                     <p className="text-gray-900 dark:text-white">-</p>
                   )}
                 </div>
+
+                {/* Meeting Schedule */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Meeting Schedule
+                  </label>
+                  <div className="text-gray-900 dark:text-white">{formatSchedule(selectedCourse.meeting_schedule || selectedCourse.meeting_schedule_string)}</div>
+                </div>
+
 
                 {/* Short Description */}
                 <div className="md:col-span-2">

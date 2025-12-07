@@ -45,9 +45,21 @@ const EventArea = () => {
                                     <span className="sub-title">Upcoming Events</span>
                                     <h2 className="title">it Bigger</h2>
                                 </div>
-                                <p>Edhen an unknown printer took a galley acrambled make a type specimen bookas centuries.Edhen anderely unknown printer took a galley.</p>
+                                <p>
+                                    Edhen an unknown printer took a galley acrambled make a type
+                                    specimen bookas centuries.Edhen anderely unknown printer took
+                                    a galley.
+                                </p>
+
+                                {/* FIX: REAL ROUTE + SCROLL TO TOP */}
                                 <div className="tg-button-wrap">
-                                    <Link to="" className="btn arrow-btn">See All Events <BtnArrow /></Link>
+                                    <Link
+                                        to="/events"
+                                        className="btn arrow-btn"
+                                        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                                    >
+                                        See All Events <BtnArrow />
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -59,12 +71,26 @@ const EventArea = () => {
                                         <div key={item.id} className="col-lg-4 col-md-6">
                                             <div className="event__item shine__animate-item">
                                                 <div className="event__item-thumb">
-                                                    <Link to="" className="shine__animate-link"><img src={item.thumb} alt="img" /></Link>
+                                                    {/* FIX: also add a real route if needed */}
+                                                    <Link to={`/events/${item.id}`} className="shine__animate-link">
+                                                        <img src={item.thumb} alt="img" />
+                                                    </Link>
                                                 </div>
+
                                                 <div className="event__item-content">
                                                     <span className="date">{item.date}</span>
-                                                    <h2 className="title"><Link to="">{item.title}</Link></h2>
-                                                    <Link to="" className="location" target="_blank"><i className="flaticon-map"></i>{item.location}</Link>
+
+                                                    <h2 className="title">
+                                                        <Link to={`/events/${item.id}`}>{item.title}</Link>
+                                                    </h2>
+
+                                                    <a 
+                                                      href="#" 
+                                                      className="location"
+                                                      target="_blank"
+                                                    >
+                                                        <i className="flaticon-map"></i>{item.location}
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -72,14 +98,20 @@ const EventArea = () => {
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
+
             <div className="event__shape">
-                <img src="/assets/img/events/event_shape.png" alt="img" className="alltuchtopdown" />
+                <img 
+                  src="/assets/img/events/event_shape.png"
+                  alt="img"
+                  className="alltuchtopdown"
+                />
             </div>
         </section>
-    )
-}
+    );
+};
 
-export default EventArea
+export default EventArea;

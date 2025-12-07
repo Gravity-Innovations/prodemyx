@@ -48,7 +48,7 @@ export default function CreateUser() {
         }),
       });
 
-      const data = await res.json();
+      const data = res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create user");
 
       alert("User created successfully!");

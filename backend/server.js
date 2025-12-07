@@ -379,6 +379,26 @@ const uploadCourseFiles = multer({
  *       400:
  *         description: Missing fields or email already exists
  */
+
+
+app.get("/api/admin/summary", auth, adminOnly, async (req, res) => {
+  try {
+    const [[users]] = await pool.query("SELECT COUNT(*) AS total_users FROM users");
+    const [[courses]] = await pool.query("SELECT COUNT(*) AS total_courses FROM courses");
+    const [[enrollments]] = await pool.query("SELECT COUNT(*) AS total_enrollments FROM user_course_access");
+
+    res.json({
+      total_users: users.total_users,
+      total_courses: courses.total_courses,
+      total_enrollments: enrollments.total_enrollments,
+    });
+
+  } catch (err) {
+    console.error("Admin summary error:", err);
+    res.status(500).json({ message: "Server error loading admin dashboard" });
+  }
+});
+ 
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -740,10 +760,35 @@ app.put("/api/users/:id", auth, async (req, res) => {
  *         description: Admin access required
  */
 app.delete("/api/users/:id", auth, adminOnly, async (req, res) => {
+  const userId = req.params.id;
   const conn = await pool.getConnection();
-  await conn.query("DELETE FROM users WHERE id=?", [req.params.id]);
-  conn.release();
-  res.json({ message: "User removed" });
+  try {
+    await conn.beginTransaction();
+
+    // 1. Remove enrollments
+    await conn.query("DELETE FROM user_course_access WHERE user_id = ?", [userId]);
+
+    // 2. Remove purchase history
+    await conn.query("DELETE FROM purchases WHERE user_id = ?", [userId]);
+
+    // 3. Unassign from course schedules if they are an instructor
+    await conn.query("UPDATE course_schedules SET instructor_id = NULL WHERE instructor_id = ?", [userId]);
+
+    // 4. Unassign from courses if they are an instructor
+    await conn.query("UPDATE courses SET instructor_id = NULL WHERE instructor_id = ?", [userId]);
+
+    // 5. Delete the user
+    await conn.query("DELETE FROM users WHERE id=?", [userId]);
+
+    await conn.commit();
+    res.json({ message: "User removed successfully" });
+  } catch (err) {
+    await conn.rollback();
+    console.error("Delete user error:", err);
+    res.status(500).json({ message: "Failed to delete user due to server error." });
+  } finally {
+    conn.release();
+  }
 });
 
 // ========================================================
@@ -876,11 +921,16 @@ app.get("/api/courses", auth, async (_, res) => {
     SELECT 
       c.*,
       cat.name AS category_name,
-      u.name AS instructor_name
+      u.name AS instructor_name,
+      (SELECT GROUP_CONCAT(CONCAT(cs.meeting_date, ' ', cs.meeting_time,' ', cs.meeting_schedule) SEPARATOR '; ')
+         FROM course_schedules cs
+         WHERE cs.course_id = c.id
+      ) AS meeting_schedule
     FROM courses c
     LEFT JOIN categories cat ON cat.id = c.category_id
     LEFT JOIN users u ON u.id = c.instructor_id
-    ORDER BY c.id DESC
+    GROUP BY c.id, cat.name, u.name
+    ORDER BY c.id DESC    
   `);
 
   res.json(rows);
@@ -1017,10 +1067,32 @@ app.post("/api/courses", auth, adminOnly, async (req, res) => {
  *         description: Admin access required
  */
 app.delete("/api/courses/:id", auth, adminOnly, async (req, res) => {
+  const courseId = req.params.id;
   const conn = await pool.getConnection();
-  await conn.query("DELETE FROM courses WHERE id=?", [req.params.id]);
-  conn.release();
-  res.json({ message: "Course removed" });
+  try {
+    await conn.beginTransaction();
+
+    // 1. Remove enrollments for this course
+    await conn.query("DELETE FROM user_course_access WHERE course_id = ?", [courseId]);
+
+    // 2. Remove purchase history for this course
+    await conn.query("DELETE FROM purchases WHERE course_id = ?", [courseId]);
+
+    // 3. Remove schedules for this course
+    await conn.query("DELETE FROM course_schedules WHERE course_id = ?", [courseId]);
+
+    // 4. Finally, delete the course itself
+    await conn.query("DELETE FROM courses WHERE id=?", [courseId]);
+
+    await conn.commit();
+    res.json({ message: "Course removed successfully" });
+  } catch (err) {
+    await conn.rollback();
+    console.error("Delete course error:", err);
+    res.status(500).json({ message: "Failed to delete course due to a server error." });
+  } finally {
+    conn.release();
+  }
 });
 
 // ADMIN update
@@ -1094,53 +1166,60 @@ app.put(
       category_id,
       instructor_id,
       zoom_link,
-      schedule_morning,
-      schedule_evening,
-      schedule_weekend,
       status,
+      meeting_schedule,
       price   // <-- NEW
     } = req.body;
 
+    
     const conn = await pool.getConnection();
 
-    let query = "UPDATE courses SET ";
-    const params = [];
-
-    if (title) { query += "title=?, "; params.push(title); }
-    if (short_description) { query += "short_description=?, "; params.push(short_description); }
-    if (long_description) { query += "long_description=?, "; params.push(long_description); }
-    if (category_id) { query += "category_id=?, "; params.push(category_id); }
-    if (instructor_id) { query += "instructor_id=?, "; params.push(instructor_id); }
-    if (zoom_link) { query += "zoom_link=?, "; params.push(zoom_link); }
-    if (status) { query += "status=?, "; params.push(status); }
-
-    // ADD PRICE
-    if (price) {
-      query += "price=?, ";
-      params.push(price);
-    }
-
-    // FILES
-    if (req.files["photo"]) {
-      query += "photo=?, ";
-      params.push(`/uploads/course-covers/${req.files["photo"][0].filename}`);
-    }
-
-    if (req.files["material"]) {
-      query += "file=?, ";
-      params.push(`/uploads/materials/${req.files["material"][0].filename}`);
-    }
-
-    query = query.slice(0, -2);
-    query += " WHERE id=?";
-    params.push(id);
-
     try {
-      await conn.query(query, params);
+      await conn.beginTransaction();
+
+      // 1. Update the main course table
+      let query = "UPDATE courses SET ";
+      const params = [];
+
+      if (title) { query += "title=?, "; params.push(title); }
+      if (short_description) { query += "short_description=?, "; params.push(short_description); }
+      if (long_description) { query += "long_description=?, "; params.push(long_description); }
+      if (category_id) { query += "category_id=?, "; params.push(category_id); }
+      if (instructor_id) { query += "instructor_id=?, "; params.push(instructor_id); }
+      if (zoom_link) { query += "zoom_link=?, "; params.push(zoom_link); }
+      if (status) { query += "status=?, "; params.push(status); }
+      if (price) { query += "price=?, "; params.push(price); }
+
+      if (req.files["photo"]) {
+        query += "photo=?, ";
+        params.push(`/uploads/course-covers/${req.files["photo"][0].filename}`);
+      }
+      if (req.files["material"]) {
+        query += "file=?, ";
+        params.push(`/uploads/materials/${req.files["material"][0].filename}`);
+      }
+
+      if (params.length > 0) {
+        query = query.slice(0, -2); // remove trailing comma and space
+        query += " WHERE id=?";
+        params.push(id);
+        await conn.query(query, params);
+      }
+
+      // 2. Update course schedule's meeting_schedule text if provided
+      if (meeting_schedule) {
+        await conn.query(
+          `UPDATE course_schedules SET meeting_schedule = ? WHERE course_id = ? ORDER BY id LIMIT 1`,
+          [meeting_schedule, id]
+        );
+      }
+
+      await conn.commit();
       conn.release();
       res.json({ message: "Course updated successfully" });
     } catch (err) {
       console.error("Update course error:", err);
+      await conn.rollback();
       conn.release();
       res.status(500).json({ message: "Server error" });
     }
@@ -1213,7 +1292,14 @@ app.get("/api/public/courses/:id", async (req, res) => {
     const id = req.params.id;
 
     const [rows] = await pool.query(
-      "SELECT * FROM courses WHERE id=? LIMIT 1",
+      `
+      SELECT 
+        c.*,
+        (SELECT cs.meeting_schedule FROM course_schedules cs WHERE cs.course_id = c.id ORDER BY cs.id LIMIT 1) AS meeting_schedule
+      FROM courses c 
+      WHERE c.id=? 
+      LIMIT 1
+      `,
       [id]
     );
 
@@ -1293,6 +1379,12 @@ app.get("/api/student/enrolled-courses", auth, studentOnly, async (req, res) => 
   try {
     const studentId = req.user.id;
 
+    // NOTE: The `course_schedules` table is not defined in the provided schema,
+    // but based on other queries, it seems to have `course_id`, `meeting_date`, and `meeting_time`.
+    // This query assumes that structure. If it's different, the GROUP_CONCAT part may need adjustment.
+    // We are also assuming a `course_schedules` table exists. If not, this query will fail.
+    // For now, I'll add it defensively with a LEFT JOIN.
+
     const [rows] = await pool.query(
       `
       SELECT 
@@ -1304,14 +1396,21 @@ app.get("/api/student/enrolled-courses", auth, studentOnly, async (req, res) => 
         c.status,
         c.zoom_link,
         c.file AS material_file,
+        p.purchase_date,
+        (SELECT CONCAT('[', GROUP_CONCAT(JSON_OBJECT('meeting_date', cs.meeting_date, 'meeting_time', cs.meeting_time, 'meeting_schedule', cs.meeting_schedule)), ']')
+         FROM course_schedules cs
+         WHERE cs.course_id = c.id
+        ) AS meeting_schedules,
         cat.name AS category_name,
         u.name AS instructor_name
       FROM user_course_access uca
       JOIN courses c ON c.id = uca.course_id
+      LEFT JOIN purchases p ON p.user_id = uca.user_id AND p.course_id = uca.course_id
       LEFT JOIN categories cat ON cat.id = c.category_id
       LEFT JOIN users u ON u.id = c.instructor_id
       WHERE uca.user_id = ?
-      ORDER BY c.id DESC
+      GROUP BY c.id, p.purchase_date, cat.name, u.name
+      ORDER BY p.purchase_date DESC, c.id DESC
       `,
       [studentId]
     );

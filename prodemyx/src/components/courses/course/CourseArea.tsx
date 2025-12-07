@@ -4,7 +4,6 @@ import CourseSidebar from './CourseSidebar';
 import CourseTop from './CourseTop';
 import UseCourses from '../../../hooks/UseCourses';
 import { Link } from 'react-router-dom';
-
 const CourseArea = () => {
 
    const { courses, setCourses, categories } = UseCourses();
@@ -55,7 +54,15 @@ const CourseArea = () => {
                                  <div className="courses__item shine__animate-item">
                                     <div className="courses__item-thumb">
                                        <Link to='' className="shine__animate-link">
-                                          <img src={item.thumb} alt="img" />
+                                          <img
+  src={
+    item.thumb?.startsWith("http")
+      ? item.thumb
+      : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${item.thumb}`
+  }
+  alt="img"
+/>
+
                                        </Link>
                                     </div>
                                     <div className="courses__item-content">

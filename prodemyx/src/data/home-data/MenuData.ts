@@ -34,13 +34,13 @@ const menu_data: MenuItem[] = [
     {
         id: 2,
         title: "Courses",
-        link: "#",
+        link: "/categories",
        
     },
     {
         id: 3,
         title: "About Us",
-        link: "#",
+        link: "/about-us",
 
     },
     {

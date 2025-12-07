@@ -25,6 +25,7 @@ export default function PublicCourseDetails() {
 
   useEffect(() => {
     if (id) loadCourse();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
   async function loadCourse() {
@@ -64,16 +65,11 @@ export default function PublicCourseDetails() {
             <div className="col-xl-6 col-lg-6">
               <div className="courses__details-thumb">
                 <img
-                  src={
-                    course.photo
-                      ? course.photo.startsWith("http")
-                        ? course.photo
-                        : `${API_BASE_URL}${course.photo}`
-                      : "/assets/img/courses/courses_details.jpg"
-                  }
-                  alt={course.title}
-                  style={{ width: "100%", borderRadius: "10px" }}
-                />
+  src={course.photo || "/assets/img/courses/courses_details.jpg"}
+  alt={course.title}
+  style={{ width: "100%", borderRadius: "10px" }}
+/>
+
               </div>
             </div>
 
@@ -178,17 +174,11 @@ export default function PublicCourseDetails() {
                   }}
                 >
                   <img
-                    src={
-                      s.photo
-                        ? s.photo.startsWith("http")
-                          ? s.photo
-                          : `${API_BASE_URL}${s.photo}`
-                        : "/assets/img/courses/courses_details.jpg"
-                    }
-                    className="mb-3 rounded"
-                    alt={s.title}
-                    style={{ width: "100%", borderRadius: "10px" }}
-                  />
+  src={s.photo || "/assets/img/courses/courses_details.jpg"}
+  alt={s.title}
+  className="mb-3 rounded"
+  style={{ width: "100%", borderRadius: "10px" }}
+/>
 
                   <h4 className="text-lg font-semibold">{s.title}</h4>
 
@@ -201,7 +191,11 @@ export default function PublicCourseDetails() {
 
                   {/* VIEW COURSE */}
                   <button
-                    onClick={() => navigate(`/course/${s.id}`)}
+                    onClick={() => {
+    navigate(`/course/${s.id}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}}
+
                     className="mt-3 w-[140px] h-[45px]"
                     style={{
                       backgroundColor: "#F9C93A",

@@ -57,6 +57,37 @@ const StudentEnrolledCourses = () => {
 
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+    const formatDate = (isoString) => {
+        if (!isoString) return "-";
+        const date = new Date(isoString);
+        return date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    const formatSchedule = (scheduleString) => {
+        if (!scheduleString) return "Not Scheduled";
+    
+        let schedules = [];
+        try {
+            // The backend now sends a JSON array string
+            schedules = JSON.parse(scheduleString);
+            if (!Array.isArray(schedules) || schedules.length === 0) return "Not Scheduled";
+        } catch (e) {
+            return "Invalid schedule format";
+        }
+    
+        return (
+            <div>
+                {schedules.map((schedule, index) => {
+                    if (!schedule || !schedule.meeting_date) return null;
+                    const date = new Date(schedule.meeting_date);
+                    const dateString = date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                    const timeString = schedule.meeting_time ? ` at ${schedule.meeting_time}` : '';
+                    return <div key={index}>{`${dateString}${timeString} (${schedule.meeting_schedule || 'N/A'})`}</div>;
+                })}
+            </div>
+        );
+    };
+
     return (
         <div className="bg-background-light dark:bg-background-dark font-display min-h-screen">
             <div className="relative flex min-h-screen w-full">
@@ -100,10 +131,12 @@ const StudentEnrolledCourses = () => {
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Instructor</th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Duration</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Purchase date</th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Meeting Schedule</th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Meeting Link</th>
+                                                    
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Materials</th>
                                                 </tr>
                                             </thead>
@@ -119,8 +152,7 @@ const StudentEnrolledCourses = () => {
                                                         <td className="px-6 py-4 text-sm max-w-xs">
                                                             <div className="line-clamp-2">{course.short_description || "-"}</div>
                                                         </td>
-
-                                                        <td className="px-6 py-4 text-sm">{course.duration || "-"}</td>
+                                                        <td className="px-6 py-4 text-sm">{formatDate(course.purchase_date)}</td>
                                                         <td className="px-6 py-4 text-sm">{course.price ? `₹${course.price}` : "-"}</td>
 
                                                         <td className="px-6 py-4 text-sm">
@@ -134,12 +166,16 @@ const StudentEnrolledCourses = () => {
                                                             </span>
                                                         </td>
 
+                                                        {/* MEETING SCHEDULE */}
+                                                        <td className="px-6 py-4 text-sm">{formatSchedule(course.meeting_schedules)}</td>
+
                                                         {/* MEETING LINK */}
                                                         <td className="px-6 py-4 text-sm">
                                                             {course.zoom_link ? (
                                                                 <a
                                                                     href={course.zoom_link}
                                                                     target="_blank"
+                                                                    rel="noreferrer"
                                                                     className="bg-blue-600 text-white px-3 py-1 rounded-lg"
                                                                 >
                                                                     Join Meeting
@@ -151,9 +187,13 @@ const StudentEnrolledCourses = () => {
 
                                                         {/* MATERIAL FILE */}
                                                         <td className="px-6 py-4 text-sm">
-                                                            {course.file ? (
+                                                            {course.material_file ? (
                                                                 <a
-                                                                    href={course.file.startsWith("http") ? course.file : `${BASE_URL}${course.file}`}
+                                                                    href={
+                                                                        course.material_file.startsWith("http")
+                                                                            ? course.material_file
+                                                                            : `${BASE_URL}${course.material_file}`
+                                                                    }
                                                                     target="_blank"
                                                                     className="bg-green-600 text-white px-3 py-1 rounded-lg"
                                                                 >

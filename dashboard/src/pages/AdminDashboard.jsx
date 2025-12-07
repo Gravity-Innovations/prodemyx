@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../api.js";
 
-// 🔐 Token-based API fetch
+// Unified authenticated fetch
 const apiFetch = async (url, options = {}) => {
   const token = localStorage.getItem("token");
 
@@ -14,46 +14,54 @@ const apiFetch = async (url, options = {}) => {
     ...options,
   });
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "API Error");
-  return data;
+  let text = await res.text();
+
+  try {
+    const json = JSON.parse(text);
+    if (!res.ok) throw new Error(json.message || "API Error");
+    return json;
+  } catch (e) {
+    console.error("Non-JSON response:", text);
+    throw new Error("Invalid server response");
+  }
 };
+
+import Sidebar from "../components/sidebar";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     total_users: 0,
     total_courses: 0,
     total_enrollments: 0,
   });
 
-  // Redirect if not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
     if (!token || user.role !== "admin") {
       navigate("/login");
+      return;
     }
-  }, [navigate]);
 
-  // Load summary stats
-  useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        const data = await apiFetch("/reports/summary");
-        setStats({
-          total_users: data.total_users,
-          total_courses: data.total_courses,
-          total_enrollments: data.total_enrollments,
-        });
-      } catch (err) {
-        console.error("Dashboard error:", err);
-      }
-    };
-
-    loadDashboard();
+    loadStats();
   }, []);
+
+  // FIXED: correct backend endpoint
+  const loadStats = async () => {
+    try {
+      const data = await apiFetch("/admin/summary");
+      setStats({
+        total_users: data.total_users,
+        total_courses: data.total_courses,
+        total_enrollments: data.total_enrollments,
+      });
+    } catch (err) {
+      console.error("Admin Dashboard Load Error:", err);
+    }
+  };
 
   return (
     <div className="bg-background-light font-display text-[#333333] min-h-screen">
@@ -71,16 +79,12 @@ const AdminDashboard = () => {
             <ChartsAndLists />
           </main>
         </div>
+
       </div>
     </div>
   );
 };
 
-/* ---------------- Sidebar (NEW MATCHES USER MANAGEMENT) ---------------- */
-import Sidebar from "../components/sidebar";
-
-
-/* ---------------- Navbar ---------------- */
 const TopNavbar = () => (
   <header className="flex justify-between items-center border-b bg-white px-6 py-3">
     <input
@@ -100,7 +104,6 @@ const TopNavbar = () => (
   </header>
 );
 
-/* ---------------- Stats Section ---------------- */
 const StatsSection = ({ stats }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
     <StatBox title="Total Users" value={stats.total_users} />
@@ -117,27 +120,9 @@ const StatBox = ({ title, value }) => (
   </div>
 );
 
-/* ---------------- Charts Section ---------------- */
 const ChartsAndLists = () => (
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    {/* <div className="lg:col-span-2 bg-white p-6 rounded-xl border">
-      <h3 className="text-lg font-semibold mb-4">Active Users</h3>
-      <img
-        className="w-full h-64 object-contain"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPOxvRpa2Iy6QvuITwqMNwO3O80J_4LZ99dHynTdTz0RC3V_f9Kp5RZfIAV99Z-xC8OEfym7PbxKvyOBzUvuR4gwthZbYJ_1wPo96IOXQHp_CeouqvfRJS17xGLekvCsuxT3ozpgdNLZO8i2zE_iQW9Qxqn5_MV2guuFDAmF8XaeI0B3bTylNVhtbkYPSIuFkSgvpy5zQ1y046hw3w7BckEIG1c26Nsjx9Ei5wcCerap8PClYkC5CavvsJa6GFcYxbQwJcVAYai7U"
-        alt="Chart"
-      />
-    </div> */}
-
-    {/* <div className="bg-white p-6 rounded-xl border">
-      <h3 className="text-lg font-semibold mb-4">Enrollment Status</h3>
-      <img
-        className="w-full h-52 object-contain"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNiM-hBGqC93ps86ez86uTRYOGIkuIwkEkeBEusimKsAdaTmypB7y2xYeZYYMQBnfCZeqCh1g7808kN-TA92R7lzrhPjMLK-Z5duYQzNfQA8Q-Z9EuFNB75qsB3jLCPgL3_odEbPeSdizmOWWUpCR3i_
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNiM-hBGqC93ps86ez86uTRYOGIkuIwkEkeBEusimKsAdaTmypB7y2xYeZYYMQBnfCZeqCh1g7808kN-TA92R7lzrhPjMLK-Z5duYQzNfQA8Q-Z9EuFNB75qsB3jLCPgL3_odEbPeSdizmOWWUpCR3iUzw9xdqDoTwCdiAGgGQOg1RRcisKpzoaqSN375S0lDsWMFpikEjY6YipCBdXo62TJkle5TfOrzUkInVsh1xA2854j4jAEVOajp8L0JUh3fBkPFshkHuy0U"
-        alt="Donut Chart"
-      />
-    </div> */}
+    {/* Placeholder */}
   </div>
 );
 

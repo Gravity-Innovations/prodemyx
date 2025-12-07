@@ -61,9 +61,11 @@ export default function EditCourse() {
           setInstructorId(course.instructor_id || "");
           setZoomLink(course.zoom_link || "");
 
-          setScheduleMorning(!!course.schedule_morning);
-          setScheduleEvening(!!course.schedule_evening);
-          setScheduleWeekend(!!course.schedule_weekend);
+          // Parse the meeting_schedule string to set checkboxes
+          const scheduleString = course.meeting_schedule || "";
+          setScheduleMorning(scheduleString.includes("Morning"));
+          setScheduleEvening(scheduleString.includes("Evening"));
+          setScheduleWeekend(scheduleString.includes("Weekend"));
 
           setExistingCoverUrl(course.photo || "");
           setExistingMaterialUrl(course.material_url || "");
@@ -111,11 +113,15 @@ export default function EditCourse() {
       formData.append("price", price); // <-- NEW
       formData.append("instructor_id", instructorId);
       formData.append("zoom_link", zoomLink);
-
-      formData.append("schedule_morning", scheduleMorning);
-      formData.append("schedule_evening", scheduleEvening);
-      formData.append("schedule_weekend", scheduleWeekend);
-
+      
+      const schedules = [];
+      if (scheduleMorning) schedules.push("Morning");
+      if (scheduleEvening) schedules.push("Evening");
+      if (scheduleWeekend) schedules.push("Weekend");
+      
+      // Join the schedules into a single string, e.g., "Morning, Evening"
+      formData.append("meeting_schedule", schedules.join(', '));
+      
       formData.append("status", status);
 
       if (coverFile) formData.append("photo", coverFile);

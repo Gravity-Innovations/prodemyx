@@ -31,7 +31,10 @@ const CourseArea = () => {
               title: c.title,
               category: c.category_name,
               price: c.price || 0,
-              thumb: c.photo ? `${API_BASE_URL}/uploads/course-covers/${c.photo}` : "/assets/img/courses/default.png",
+              thumb: c.photo
+  ? (c.photo.startsWith("http") ? c.photo : `${API_BASE_URL}${c.photo}`)
+  : "/assets/img/courses/default.png",
+
             }))
           );
         } else {
