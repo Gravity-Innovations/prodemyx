@@ -54,14 +54,7 @@ const CourseArea = () => {
                                  <div className="courses__item shine__animate-item">
                                     <div className="courses__item-thumb">
                                        <Link to='' className="shine__animate-link">
-                                          <img
-  src={
-    item.thumb?.startsWith("http")
-      ? item.thumb
-      : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${item.thumb}`
-  }
-  alt="img"
-/>
+                                          <img src={item.photo || item.thumb || ''} alt="img" />
 
                                        </Link>
                                     </div>
@@ -107,7 +100,7 @@ const CourseArea = () => {
                                  <div className="courses__item courses__item-three shine__animate-item">
                                     <div className="courses__item-thumb">
                                        <Link to="" className="shine__animate-link">
-                                          <img src={item.thumb} alt="img" />
+                                          <img src={item.photo || item.thumb || ''} alt="img" />
                                        </Link>
                                     </div>
                                     <div className="courses__item-content">

@@ -1266,8 +1266,9 @@ app.get("/api/public/courses", async (_, res) => {
 
     const mapped = rows.map((c) => ({
       ...c,
+      thumb: c.photo ? `${publicUrl}/api${c.photo}` : null, // Keep for backward compatibility
       photo: c.photo ? `${publicUrl}/api${c.photo}` : null,
-      material_url: c.file ? `${publicUrl}/api${c.file}` : null,
+      material_url: c.file ? `${publicUrl}/api${c.file}` : null
     }));
 
     res.json(mapped);
