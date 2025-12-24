@@ -52,13 +52,14 @@ jobs:
     - name: Set permissions and reload Nginx
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         echo "========================================="
         echo "Prodemyx Website Deployment"
         echo "========================================="
         echo "Setting permissions..."
-        sudo chown -R www-data:www-data /var/www/prodemyx-website
-        sudo chmod -R 755 /var/www/prodemyx-website
+        echo "$PASS" | sudo -S chown -R www-data:www-data /var/www/prodemyx-website
+        echo "$PASS" | sudo -S chmod -R 755 /var/www/prodemyx-website
         
         echo "Checking Nginx..."
         if ! command -v nginx > /dev/null 2>&1; then
@@ -66,11 +67,11 @@ jobs:
           exit 1
         fi
         
-        sudo systemctl start nginx || true
+        echo "$PASS" | sudo -S systemctl start nginx || true
         echo "Testing Nginx configuration..."
-        sudo nginx -t
+        echo "$PASS" | sudo -S nginx -t
         echo "Reloading Nginx..."
-        sudo systemctl reload nginx
+        echo "$PASS" | sudo -S systemctl reload nginx
         
         echo "Verifying website..."
         if [ -f "/var/www/prodemyx-website/index.html" ]; then

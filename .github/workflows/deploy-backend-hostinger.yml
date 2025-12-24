@@ -25,32 +25,35 @@ jobs:
     - name: Setup MySQL Server
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
+        PASS='Dev@2025'
         echo "========================================="
         echo "Setting up MySQL Server"
         echo "========================================="
         if ! command -v mysql > /dev/null 2>&1; then
           echo "Installing MySQL Server..."
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
-          sudo systemctl enable mysql
-          sudo systemctl start mysql
+          echo "$PASS" | sudo -S apt-get update
+          echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+          echo "$PASS" | sudo -S systemctl enable mysql
+          echo "$PASS" | sudo -S systemctl start mysql
           echo "MySQL installed successfully"
         else
           echo "MySQL already installed"
-          sudo systemctl start mysql || true
+          echo "$PASS" | sudo -S systemctl start mysql || true
         fi
         echo "Configuring MySQL database..."
-        sudo mysql -e "CREATE DATABASE IF NOT EXISTS prodemyx;" 2>/dev/null || true
-        sudo mysql -e "CREATE USER IF NOT EXISTS 'prodemyx_user'@'localhost' IDENTIFIED BY 'ProdemyxSecure2024!';" 2>/dev/null || true
-        sudo mysql -e "GRANT ALL PRIVILEGES ON prodemyx.* TO 'prodemyx_user'@'localhost';" 2>/dev/null || true
-        sudo mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+        echo "$PASS" | sudo -S mysql -e "CREATE DATABASE IF NOT EXISTS prodemyx;" 2>/dev/null || true
+        echo "$PASS" | sudo -S mysql -e "CREATE USER IF NOT EXISTS 'prodemyx_user'@'localhost' IDENTIFIED BY 'ProdemyxSecure2024!';" 2>/dev/null || true
+        echo "$PASS" | sudo -S mysql -e "GRANT ALL PRIVILEGES ON prodemyx.* TO 'prodemyx_user'@'localhost';" 2>/dev/null || true
+        echo "$PASS" | sudo -S mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
         echo "MySQL database configured"
         EOF
 
     - name: Setup Node.js and PM2
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         echo "========================================="
         echo "Setting up Node.js and PM2"
@@ -58,14 +61,14 @@ jobs:
         if ! command -v node > /dev/null 2>&1; then
           echo "Installing Node.js 18.x..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
+          echo "$PASS" | sudo -S apt-get install -y nodejs
           echo "Node.js installed: $(node -v)"
         else
           echo "Node.js already installed: $(node -v)"
         fi
         if ! command -v pm2 > /dev/null 2>&1; then
           echo "Installing PM2..."
-          sudo npm install -g pm2
+          echo "$PASS" | sudo -S npm install -g pm2
           echo "PM2 installed successfully"
         else
           echo "PM2 already installed"
@@ -75,20 +78,21 @@ jobs:
     - name: Setup Nginx
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         echo "========================================="
         echo "Setting up Nginx"
         echo "========================================="
         if ! command -v nginx > /dev/null 2>&1; then
           echo "Installing Nginx..."
-          sudo apt-get update
-          sudo apt-get install -y nginx
-          sudo systemctl enable nginx
-          sudo systemctl start nginx
+          echo "$PASS" | sudo -S apt-get update
+          echo "$PASS" | sudo -S apt-get install -y nginx
+          echo "$PASS" | sudo -S systemctl enable nginx
+          echo "$PASS" | sudo -S systemctl start nginx
           echo "Nginx installed successfully"
         else
           echo "Nginx already installed"
-          sudo systemctl start nginx || true
+          echo "$PASS" | sudo -S systemctl start nginx || true
         fi
         EOF
 
@@ -111,12 +115,13 @@ jobs:
         echo "Database file changed, importing..."
         sshpass -p 'Dev@2025' scp -o StrictHostKeyChecking=no prodemyx.sql prodemyxdev@72.61.243.218:/tmp/prodemyx.sql
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         echo "Creating database backup..."
         BACKUP_FILE="/tmp/prodemyx_backup_$(date +%Y%m%d_%H%M%S).sql"
-        sudo mysqldump prodemyx > "$BACKUP_FILE" 2>/dev/null || echo "No existing data to backup"
+        echo "$PASS" | sudo -S mysqldump prodemyx > "$BACKUP_FILE" 2>/dev/null || echo "No existing data to backup"
         echo "Importing database..."
-        sudo mysql prodemyx < /tmp/prodemyx.sql
+        echo "$PASS" | sudo -S mysql prodemyx < /tmp/prodemyx.sql
         echo "Database imported successfully!"
         rm -f /tmp/prodemyx.sql
         EOF
@@ -149,9 +154,10 @@ jobs:
     - name: Configure Nginx
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         echo "Configuring Nginx..."
-        sudo tee /etc/nginx/sites-available/prodemyx > /dev/null << 'NGINXEOF'
+        echo "$PASS" | sudo -S tee /etc/nginx/sites-available/prodemyx > /dev/null << 'NGINXEOF'
         # Backend API
         upstream backend_app {
             server 127.0.0.1:5000;
@@ -222,16 +228,17 @@ jobs:
         }
         NGINXEOF
         
-        sudo ln -sf /etc/nginx/sites-available/prodemyx /etc/nginx/sites-enabled/
-        sudo rm -f /etc/nginx/sites-enabled/default
-        sudo nginx -t
-        sudo systemctl reload nginx
+        echo "$PASS" | sudo -S ln -sf /etc/nginx/sites-available/prodemyx /etc/nginx/sites-enabled/
+        echo "$PASS" | sudo -S rm -f /etc/nginx/sites-enabled/default
+        echo "$PASS" | sudo -S nginx -t
+        echo "$PASS" | sudo -S systemctl reload nginx
         echo "Nginx configured successfully!"
         EOF
 
     - name: Install dependencies and restart backend
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         set -e
         cd ~/prodemyx/backend
         echo "Installing dependencies..."
@@ -252,15 +259,16 @@ jobs:
     - name: Verify deployment
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        PASS='Dev@2025'
         echo "========================================="
         echo "Deployment Verification"
         echo "========================================="
         echo "Checking backend process..."
         pm2 list | grep prodemyx-backend || exit 1
         echo "Checking MySQL..."
-        sudo systemctl is-active mysql || exit 1
+        echo "$PASS" | sudo -S systemctl is-active mysql || exit 1
         echo "Checking Nginx..."
-        sudo systemctl is-active nginx || exit 1
+        echo "$PASS" | sudo -S systemctl is-active nginx || exit 1
         echo "Testing backend API..."
         sleep 3
         curl -f http://localhost:5000 > /dev/null 2>&1 || echo "Backend warming up..."
