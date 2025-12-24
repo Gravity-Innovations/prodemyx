@@ -30,7 +30,7 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-const publicUrl = process.env.PUBLIC_URL || "http://localhost:5000";
+const publicUrl = "http://72.61.243.218:5000";
 
 // ========================================================
 // SWAGGER SETUP
@@ -45,8 +45,8 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://ec2-16-171-24-103.eu-north-1.compute.amazonaws.com",
-        description: "EC2 server",
+        url: "http://72.61.243.218:5000",
+        description: "Production server",
       },
       {
         url: "http://localhost:5000",
