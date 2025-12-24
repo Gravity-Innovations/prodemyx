@@ -155,80 +155,84 @@ jobs:
     - name: Configure Nginx
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
-        PASS='Dev@2025'
         set -e
+        PASS='Dev@2025'
         echo "Configuring Nginx..."
-        echo "$PASS" | sudo -S tee /etc/nginx/sites-available/prodemyx > /dev/null << 'NGINXEOF'
-        # Backend API
-        upstream backend_app {
-            server 127.0.0.1:5000;
-            keepalive 64;
-        }
-
-        server {
-            listen 80 default_server;
-            listen [::]:80 default_server;
-            server_name _;
-            
-            add_header X-Frame-Options "SAMEORIGIN" always;
-            add_header X-Content-Type-Options "nosniff" always;
-            add_header X-XSS-Protection "1; mode=block" always;
-            
-            client_max_body_size 50M;
-            
-            # Backend API
-            location /api/api-docs {
-                return 301 /api-docs;
-            }
-
-            location ^~ /api/ {
-                proxy_pass http://backend_app;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_cache_bypass $http_upgrade;
-                proxy_read_timeout 300s;
-                proxy_connect_timeout 75s;
-            }
-            
-            location /api-docs {
-                proxy_pass http://backend_app/api-docs;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_cache_bypass $http_upgrade;
-            }
-
-            # Dashboard
-            location /app/ {
-                alias /var/www/prodemyx-dashboard/;
-                try_files $uri $uri/ /app/index.html;
-                index index.html;
-            }
-            
-            # Main Website
-            location / {
-                root /var/www/prodemyx-website;
-                try_files $uri $uri/ /index.html;
-                index index.html;
-            }
-            
-            location ~ /\. {
-                deny all;
-                access_log off;
-                log_not_found off;
-            }
-        }
-        NGINXEOF
         
+        # Create nginx config in /tmp first
+        cat > /tmp/prodemyx-nginx << 'NGINXEOF'
+# Backend API
+upstream backend_app {
+    server 127.0.0.1:5000;
+    keepalive 64;
+}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    
+    client_max_body_size 50M;
+    
+    # Backend API
+    location /api/api-docs {
+        return 301 /api-docs;
+    }
+
+    location ^~ /api/ {
+        proxy_pass http://backend_app;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+    }
+    
+    location /api-docs {
+        proxy_pass http://backend_app/api-docs;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Dashboard
+    location /app/ {
+        alias /var/www/prodemyx-dashboard/;
+        try_files $uri $uri/ /app/index.html;
+        index index.html;
+    }
+    
+    # Main Website
+    location / {
+        root /var/www/prodemyx-website;
+        try_files $uri $uri/ /index.html;
+        index index.html;
+    }
+    
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
+NGINXEOF
+        
+        # Move config to nginx directory with sudo
+        echo "$PASS" | sudo -S cp /tmp/prodemyx-nginx /etc/nginx/sites-available/prodemyx
         echo "$PASS" | sudo -S ln -sf /etc/nginx/sites-available/prodemyx /etc/nginx/sites-enabled/
         echo "$PASS" | sudo -S rm -f /etc/nginx/sites-enabled/default
         echo "$PASS" | sudo -S nginx -t
