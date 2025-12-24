@@ -150,6 +150,8 @@ jobs:
         JWT_SECRET=your-secret-key-change-this-in-production
         NODE_ENV=production
         PUBLIC_URL=http://72.61.243.218
+        RAZORPAY_KEY_ID=rzp_test_placeholder
+        RAZORPAY_KEY_SECRET=placeholder_secret_key
         ENVEOF
 
     - name: Configure Nginx
