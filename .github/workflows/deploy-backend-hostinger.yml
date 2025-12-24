@@ -248,10 +248,22 @@ jobs:
         
         echo "Starting backend process..."
         pm2 start server.js --name prodemyx-backend
-        pm2 save
-        pm2 startup systemd -u $USER --hp $HOME | tail -1 | sudo bash || true
         
-        sleep 5
+        echo "Waiting for backend to start..."
+        sleep 10
+        
+        echo "Checking backend status..."
+        pm2 list
+        
+        if pm2 list | grep -q "errored"; then
+          echo "Backend failed to start! Checking logs..."
+          pm2 logs prodemyx-backend --lines 50 --nostream
+          exit 1
+        fi
+        
+        pm2 save
+        echo "$PASS" | sudo -S bash -c "$(pm2 startup systemd -u $USER --hp $HOME | tail -1)" || true
+        
         echo "Backend deployment completed!"
         EOF
 
@@ -275,5 +287,3 @@ jobs:
         echo "✓ Backend deployment successful!"
         echo "========================================="
         EOF
-
-        
