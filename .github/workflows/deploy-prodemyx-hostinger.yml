@@ -40,7 +40,7 @@ jobs:
 
     - name: Create website directory on Hostinger
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "sudo mkdir -p /var/www/prodemyx-website && sudo chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-website"
+        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "echo 'Dev@2025' | sudo -S mkdir -p /var/www/prodemyx-website && echo 'Dev@2025' | sudo -S chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-website"
 
     - name: Deploy website build to Hostinger
       run: |
@@ -107,4 +107,4 @@ jobs:
         echo "Access website at: http://72.61.243.218"
         echo "========================================="
 
-        
+

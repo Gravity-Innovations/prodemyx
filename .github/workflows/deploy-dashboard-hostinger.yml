@@ -40,7 +40,7 @@ jobs:
 
     - name: Create dashboard directory on Hostinger
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "sudo mkdir -p /var/www/prodemyx-dashboard && sudo chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-dashboard"
+        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "echo 'Dev@2025' | sudo -S mkdir -p /var/www/prodemyx-dashboard && echo 'Dev@2025' | sudo -S chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-dashboard"
 
     - name: Deploy dashboard build to Hostinger
       run: |
@@ -107,4 +107,4 @@ jobs:
         echo "Access dashboard at: http://72.61.243.218/app"
         echo "========================================="
 
-        
+
