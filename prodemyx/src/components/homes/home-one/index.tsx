@@ -20,9 +20,9 @@ const HomeOne = () => {
          <main className="main-area fix">
             <Banner />
             <Categories />
-            <BrandOne />
+            <BrandOne style={false} />
             <About />
-            <CourseArea />
+            <CourseArea style={false} />
             <Newsletter />
             <Instructor />
             <Counter />

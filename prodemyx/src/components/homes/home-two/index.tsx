@@ -21,7 +21,7 @@ const HomeTwo = () => {
             <BrandOne style={true} />
             <Feature style={false} />
             <About />
-            <CourseArea />
+            <CourseArea style={false} />
             <WorkArea />
             <Counter style={false} />
             <Instructor />
