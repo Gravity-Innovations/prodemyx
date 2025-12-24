@@ -1,111 +1,219 @@
-// src/pages/CourseArea.tsx
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../../api";
 
 interface Course {
   id: number;
   title: string;
-  category: string;
-  price: number;
-  thumb: string;
+  short_description: string;
+  photo: string;
+  category_name: string;
 }
 
-const CourseArea = () => {
-  const [backendCourses, setBackendCourses] = useState<Course[]>([]);
+const CATEGORY_TABS = [
+  "All Courses",
+  "Fullstack",
+  "DevOps",
+  "Cloud",
+  "Machine Learning",
+  "AI",
+  "LLMOps",
+];
 
-  // Fetch all courses
+const CourseArea = ({ style }: { style: boolean }) => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [activeCategory, setActiveCategory] =
+    useState<string>("All Courses");
+
+  /* ---------------- FETCH COURSES ---------------- */
   useEffect(() => {
-    fetch(`${API_BASE_URL}/public/courses`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setBackendCourses(
-            data.map((c: any) => ({
-              id: c.id,
-              title: c.title,
-              category: c.category_name,
-              price: c.price || 0,
-              thumb: c.photo
-  ? (c.photo.startsWith("http") ? c.photo : `${API_BASE_URL}${c.photo}`)
-  : "/assets/img/courses/default.png",
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/public/courses`
+        );
+        const data = await response.json();
+        setCourses(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
 
-            }))
-          );
-        } else {
-          console.error("API response is not an array:", data);
-          setBackendCourses([]); // Set to empty array to prevent .map error
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch courses:", error);
-        setBackendCourses([]); // Ensure component doesn't crash on fetch error
-      });
+    fetchCourses();
   }, []);
 
-  return (
-    <section className="all-courses-area section-py-120">
-      <div className="container">
-        {/* REAL ROUTER BUTTONS */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <Link
-            to="/courses"
-            className="btn"
-            style={{
-              marginRight: "10px",
-              border: "1px solid #333",
-              background: "#333",
-              color: "white",
-            }}
-          >
-            All Courses
-          </Link>
+  /* ---------------- FILTER COURSES ---------------- */
+  const filteredCourses =
+    activeCategory === "All Courses"
+      ? courses
+      : courses.filter(
+          (c) =>
+            c.category_name?.toLowerCase() ===
+            activeCategory.toLowerCase()
+        );
 
-          <Link
-            to="/categories"
-            className="btn"
-            style={{
-              border: "1px solid #333",
-              background: "white",
-              color: "#333",
-            }}
-          >
-            View All
-          </Link>
+  /* ---------------- SLIDER SETTINGS ---------------- */
+  const setting = {
+    slidesPerView: 4,
+    loop: filteredCourses.length > 4,
+    spaceBetween: 30,
+    observer: true,
+    observeParents: true,
+    autoplay: false,
+    navigation: {
+      nextEl: ".courses-button-next",
+      prevEl: ".courses-button-prev",
+    },
+    breakpoints: {
+      1500: { slidesPerView: 4 },
+      1200: { slidesPerView: 4 },
+      992: { slidesPerView: 3, spaceBetween: 24 },
+      768: { slidesPerView: 2, spaceBetween: 24 },
+      576: { slidesPerView: 1 },
+      0: { slidesPerView: 1 },
+    },
+  };
+
+  return (
+    <section
+      className={`courses-area ${
+        style
+          ? "section-py-120"
+          : "section-pt-120 section-pb-90"
+      }`}
+      style={{
+        backgroundImage: `url(/assets/img/bg/courses_bg.jpg)`,
+      }}
+    >
+      <div className="container">
+        {/* ---------------- TITLE ---------------- */}
+        <div className="section__title-wrap">
+          <div className="row justify-content-center">
+            <div className="col-lg-6">
+              <div className="section__title text-center mb-30">
+                <span className="sub-title">
+                  Programs That Redefine Learning
+                </span>
+                <h2 className="title">
+                  Explore Our World&apos;s Best Courses
+                </h2>
+                <p className="desc">
+                  Built for learners who want skills that actually
+                  run in the real world.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ALL COURSES LIST */}
-        <div className="row row-cols-1 row-cols-xl-3 row-cols-lg-2 row-cols-md-2 row-cols-sm-1">
-          {backendCourses.map((item) => (
-            <div key={item.id} className="col">
-              
-              {/* MAKE THE ENTIRE CARD CLICKABLE */}
-              <Link to={`/course/${item.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="courses__item shine__animate-item" style={{ cursor: "pointer" }}>
-                  <div className="courses__item-thumb">
-                    <img src={item.thumb} alt="img" />
-                  </div>
+        {/* ---------------- CATEGORY TABS ---------------- */}
+        <div className="course-category-tabs text-center mb-40">
+          <ul className="list-wrap d-flex justify-content-center gap-4 flex-wrap">
+            {CATEGORY_TABS.map((cat) => (
+              <li key={cat}>
+                <button
+                  className={`category-tab-btn ${
+                    activeCategory === cat ? "active" : ""
+                  }`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-                  <div className="courses__item-content">
-                    <h5 className="title">{item.title}</h5>
-                    <p>{item.category}</p>
-                    <h5 className="price">
-                      {item.price === 0 ? "Free" : "₹" + item.price}
-                    </h5>
+        {/* ---------------- SLIDER ---------------- */}
+        <Swiper
+          {...setting}
+          modules={[Autoplay, Navigation]}
+          className="swiper courses-swiper-active"
+        >
+          {filteredCourses.map((item) => (
+            <SwiperSlide key={item.id} className="swiper-slide">
+              <div className="courses__item shine__animate-item">
+                <div className="courses__item-thumb">
+                  <Link
+                    to={`/course/${item.id}`}
+                    className="shine__animate-link"
+                  >
+                    <img src={item.photo} alt={item.title} />
+                  </Link>
+                </div>
+
+                <div className="courses__item-content">
+                  <ul className="courses__item-meta list-wrap">
+                    <li className="courses__item-tag">
+                      {item.category_name}
+                    </li>
+                  </ul>
+
+                  <h5 className="title">
+                    <Link to={`/course/${item.id}`}>
+                      {item.title}
+                    </Link>
+                  </h5>
+
+                  <div className="courses__item-bottom">
+                    <div className="button">
+                      <Link to={`/course/${item.id}`}>
+                        <span className="text">Enroll Now</span>
+                        <i className="flaticon-arrow-right"></i>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </Link>
-              {/* END OF CLICKABLE CARD */}
-
-            </div>
+              </div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
+
+        {/* ---------------- NAV BUTTONS ---------------- */}
+        {!style && (
+          <div className="courses__nav">
+            <div className="courses-button-prev">
+              <i className="flaticon-arrow-right"></i>
+            </div>
+            <div className="courses-button-next">
+              <i className="flaticon-arrow-right"></i>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* ---------------- REQUIRED CSS ---------------- */}
+      <style>
+        {`
+          .category-tab-btn {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            padding: 6px 12px;
+            cursor: pointer;
+            position: relative;
+          }
+
+          .category-tab-btn.active {
+            color: #1e40af;
+          }
+
+          .category-tab-btn.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 100%;
+            height: 3px;
+            background-color: #1e40af;
+            border-radius: 2px;
+          }
+        `}
+      </style>
     </section>
   );
 };

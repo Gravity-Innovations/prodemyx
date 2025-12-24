@@ -34,7 +34,7 @@ const WorkArea = () => {
                   <div className="col-lg-6">
                      <div className="work__content">
                         <div className="section__title mb-20">
-                           <span className="sub-title">ProdemyX isn’t a course. It’s a transformation</span>
+                           <span className="sub-title">ProdemyX iSn’t a course. It’s a transformation</span>
                            <h2 className="title">What Makes ProdemyX Different</h2>
                         </div>
                           <h5 className="title">Production-Grade Infra</h5>

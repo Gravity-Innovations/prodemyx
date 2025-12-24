@@ -256,7 +256,7 @@ const CartArea = () => {
           {productItem.length === 0 ? (
             <div className="text-center">
               <p className="py-3">Your Bag is Empty</p>
-              <Link to="/Categories">
+              <Link to="/Courses">
                 <button className="btn">Go To Courses</button>
               </Link>
             </div>

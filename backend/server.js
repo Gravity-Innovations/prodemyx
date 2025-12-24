@@ -136,15 +136,10 @@ transporter.verify((error, success) => {
 // ========================================================
 // RAZORPAY
 // ========================================================
-let razorpay = null;
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-  razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
-} else {
-  console.log("Razorpay credentials not provided. Payment features will be disabled.");
-}
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || "",
+  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+});
 
 // ========================================================
 // JWT HELPERS
@@ -1523,12 +1518,6 @@ app.get("/api/student/dashboard", auth, studentOnly, async (req, res) => {
  */
 app.post("/api/payment/order", async (req, res) => {
   try {
-    if (!razorpay) {
-      return res.status(503).json({ 
-        message: "Payment service is not configured. Please contact administrator." 
-      });
-    }
-
     const { amount, course_id, course_ids, customer_name, customer_email } = req.body;
 
     const courseList = Array.isArray(course_ids)
