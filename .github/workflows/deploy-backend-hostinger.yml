@@ -60,7 +60,8 @@ jobs:
         echo "========================================="
         if ! command -v node > /dev/null 2>&1; then
           echo "Installing Node.js 18.x..."
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          curl -fsSL https://deb.nodesource.com/setup_18.x -o /tmp/node_setup.sh
+          echo "$PASS" | sudo -S bash /tmp/node_setup.sh
           echo "$PASS" | sudo -S apt-get install -y nodejs
           echo "Node.js installed: $(node -v)"
         else
