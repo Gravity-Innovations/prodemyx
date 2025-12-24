@@ -1523,6 +1523,12 @@ app.get("/api/student/dashboard", auth, studentOnly, async (req, res) => {
  */
 app.post("/api/payment/order", async (req, res) => {
   try {
+    if (!razorpay) {
+      return res.status(503).json({ 
+        message: "Payment service is not configured. Please contact administrator." 
+      });
+    }
+
     const { amount, course_id, course_ids, customer_name, customer_email } = req.body;
 
     const courseList = Array.isArray(course_ids)
