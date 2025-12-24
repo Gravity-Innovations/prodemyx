@@ -143,13 +143,13 @@ jobs:
       run: |
         sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "cat > ~/prodemyx/backend/.env" << 'ENVEOF'
         PORT=5000
-        DB_HOST=localhost
-        DB_USER=root
-        DB_PASSWORD=
+        DB_HOST=127.0.0.1
+        DB_USER=prodemyx_user
+        DB_PASSWORD=ProdemyxSecure2024!
         DB_NAME=prodemyx
         JWT_SECRET=my_super_secret_key
         NODE_ENV=production
-        PUBLIC_URL=http://72.61.243.218
+        PUBLIC_URL=http://72.61.243.218:5000
         RAZORPAY_KEY_ID=rzp_test_RjxogaraG7bKKe
         RAZORPAY_KEY_SECRET=4KluvJFN2FvqOgLL21Pwczmt
         EMAIL_USER=keerthykrishna2510@gmail.com
@@ -292,4 +292,3 @@ jobs:
         echo "========================================="
         EOF
 
-        
