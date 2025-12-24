@@ -30,7 +30,7 @@ jobs:
 
     - name: Build dashboard
       env:
-        VITE_API_URL: http://${{ secrets.HOSTINGER_HOST }}:5000
+        VITE_API_URL: http://72.61.243.218:5000
       run: |
         cd dashboard
         npm run build
@@ -40,18 +40,18 @@ jobs:
 
     - name: Create dashboard directory on Hostinger
       run: |
-        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "sudo mkdir -p /var/www/prodemyx-dashboard && sudo chown -R ${{ secrets.HOSTINGER_USER }}:${{ secrets.HOSTINGER_USER }} /var/www/prodemyx-dashboard"
+        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "sudo mkdir -p /var/www/prodemyx-dashboard && sudo chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-dashboard"
 
     - name: Deploy dashboard build to Hostinger
       run: |
-        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' rsync -avz --delete \
+        sshpass -p 'Dev@2025' rsync -avz --delete \
           -e 'ssh -o StrictHostKeyChecking=no' \
           dashboard/dist/ \
-          ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:/var/www/prodemyx-dashboard/
+          prodemyxdev@72.61.243.218:/var/www/prodemyx-dashboard/
 
     - name: Set permissions and reload Nginx
       run: |
-        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} 'bash -s' << 'EOF'
+        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         set -e
         echo "========================================="
         echo "Dashboard Deployment"
@@ -90,7 +90,7 @@ jobs:
         echo "========================================="
         echo "✓ Dashboard deployment successful!"
         echo "========================================="
-        echo "Dashboard available at: http://${{ secrets.HOSTINGER_HOST }}/app"
+        echo "Dashboard available at: http://72.61.243.218/app"
         echo "========================================="
         EOF
 
@@ -103,5 +103,5 @@ jobs:
         echo "✓ Files deployed to Hostinger"
         echo "✓ Nginx reloaded"
         echo "========================================="
-        echo "Access dashboard at: http://${{ secrets.HOSTINGER_HOST }}/app"
+        echo "Access dashboard at: http://72.61.243.218/app"
         echo "========================================="
