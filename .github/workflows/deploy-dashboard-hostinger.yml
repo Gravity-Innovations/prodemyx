@@ -1,0 +1,107 @@
+name: Deploy Dashboard to Hostinger
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'dashboard/**'
+      - '.github/workflows/deploy-dashboard-hostinger.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: dashboard/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd dashboard
+        npm ci
+
+    - name: Build dashboard
+      env:
+        VITE_API_URL: http://${{ secrets.HOSTINGER_HOST }}:5000
+      run: |
+        cd dashboard
+        npm run build
+
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
+
+    - name: Create dashboard directory on Hostinger
+      run: |
+        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "sudo mkdir -p /var/www/prodemyx-dashboard && sudo chown -R ${{ secrets.HOSTINGER_USER }}:${{ secrets.HOSTINGER_USER }} /var/www/prodemyx-dashboard"
+
+    - name: Deploy dashboard build to Hostinger
+      run: |
+        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' rsync -avz --delete \
+          -e 'ssh -o StrictHostKeyChecking=no' \
+          dashboard/dist/ \
+          ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:/var/www/prodemyx-dashboard/
+
+    - name: Set permissions and reload Nginx
+      run: |
+        sshpass -p '${{ secrets.HOSTINGER_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} 'bash -s' << 'EOF'
+        set -e
+        echo "========================================="
+        echo "Dashboard Deployment"
+        echo "========================================="
+        echo "Setting permissions..."
+        sudo chown -R www-data:www-data /var/www/prodemyx-dashboard
+        sudo chmod -R 755 /var/www/prodemyx-dashboard
+        
+        echo "Checking Nginx..."
+        if ! command -v nginx > /dev/null 2>&1; then
+          echo "Nginx not found. Please run backend deployment first."
+          exit 1
+        fi
+        
+        sudo systemctl start nginx || true
+        echo "Testing Nginx configuration..."
+        sudo nginx -t
+        echo "Reloading Nginx..."
+        sudo systemctl reload nginx
+        
+        echo "Verifying dashboard..."
+        if [ -f "/var/www/prodemyx-dashboard/index.html" ]; then
+          echo "✓ Dashboard files deployed successfully"
+        else
+          echo "✗ Dashboard index.html not found!"
+          exit 1
+        fi
+        
+        sleep 2
+        if curl -f http://localhost/app > /dev/null 2>&1; then
+          echo "✓ Dashboard is accessible at /app"
+        else
+          echo "⚠ Dashboard may need a moment to be accessible"
+        fi
+        
+        echo "========================================="
+        echo "✓ Dashboard deployment successful!"
+        echo "========================================="
+        echo "Dashboard available at: http://${{ secrets.HOSTINGER_HOST }}/app"
+        echo "========================================="
+        EOF
+
+    - name: Deployment summary
+      run: |
+        echo "========================================="
+        echo "Dashboard Deployment Summary"
+        echo "========================================="
+        echo "✓ Dashboard built successfully"
+        echo "✓ Files deployed to Hostinger"
+        echo "✓ Nginx reloaded"
+        echo "========================================="
+        echo "Access dashboard at: http://${{ secrets.HOSTINGER_HOST }}/app"
+        echo "========================================="
