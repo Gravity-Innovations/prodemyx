@@ -20,14 +20,16 @@ echo "Updating environment variables..."
 cat > .env << 'ENVEOF'
 PORT=5000
 DB_HOST=localhost
-DB_USER=prodemyx_user
-DB_PASSWORD=ProdemyxSecure2024!
+DB_USER=root
+DB_PASSWORD=
 DB_NAME=prodemyx
-JWT_SECRET=your-secret-key-change-this-in-production
+JWT_SECRET=my_super_secret_key
 NODE_ENV=production
 PUBLIC_URL=http://72.61.243.218
 RAZORPAY_KEY_ID=rzp_test_RjxogaraG7bKKe
 RAZORPAY_KEY_SECRET=4KluvJFN2FvqOgLL21Pwczmt
+EMAIL_USER=keerthykrishna2510@gmail.com
+EMAIL_PASS=szcomoeexzshpwnw
 ENVEOF
 
 echo "Restarting backend..."
