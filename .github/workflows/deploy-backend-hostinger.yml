@@ -270,5 +270,4 @@ jobs:
         curl -f http://localhost:5000 > /dev/null 2>&1 || echo "Backend warming up..."
         echo "========================================="
         echo "✓ Backend deployment successful!"
-        echo "========================================="
-        
+        echo "========================================="        
