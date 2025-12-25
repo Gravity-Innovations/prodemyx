@@ -36,6 +36,13 @@ const publicUrl = process.env.PUBLIC_URL || "https://prodemyx.com";
 // ========================================================
 // SWAGGER SETUP
 // ========================================================
+const swaggerServers = process.env.NODE_ENV === 'production'
+  ? [{ url: publicUrl, description: "Production server" }]
+  : [
+      { url: publicUrl, description: "Production server" },
+      { url: "http://localhost:5000", description: "Local server" }
+    ];
+
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -44,16 +51,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API documentation for ProdemyX Learning Management System",
     },
-    servers: [
-      {
-        url: "https://prodemyx.com",
-        description: "Production server",
-      },
-      {
-        url: "http://localhost:5000",
-        description: "Local server",
-      },
-    ],
+    servers: swaggerServers,
     components: {
       securitySchemes: {
         bearerAuth: {
