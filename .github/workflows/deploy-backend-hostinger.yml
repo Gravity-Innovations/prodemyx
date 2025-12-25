@@ -149,7 +149,7 @@ jobs:
         PASS='Dev@2025'
         echo "Configuring Nginx..."
         
-        echo "$PASS" | sudo -S tee /tmp/prodemyx-nginx > /dev/null << 'NGINXEOF'
+        echo "$PASS" | sudo -S bash -c 'cat > /etc/nginx/sites-available/prodemyx' << 'NGINXEOF'
         upstream backend_app {
             server 127.0.0.1:5000;
             keepalive 64;
@@ -216,7 +216,6 @@ jobs:
         }
         NGINXEOF
         
-        echo "$PASS" | sudo -S cp /tmp/prodemyx-nginx /etc/nginx/sites-available/prodemyx
         echo "$PASS" | sudo -S ln -sf /etc/nginx/sites-available/prodemyx /etc/nginx/sites-enabled/
         echo "$PASS" | sudo -S rm -f /etc/nginx/sites-enabled/default
         echo "$PASS" | sudo -S nginx -t
