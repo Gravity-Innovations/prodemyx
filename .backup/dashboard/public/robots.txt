@@ -1,6 +1,0 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# A robot should obey at least the first record found (from the top) that has a User-agent line matching the robot's name, or a User-agent line with a wildcard "*" value.
-
-User-agent: *
-Disallow:
