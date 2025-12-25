@@ -149,7 +149,7 @@ jobs:
         PASS='Dev@2025'
         echo "Configuring Nginx..."
         
-        cat > /tmp/prodemyx-nginx << 'NGINXEOF'
+        echo "$PASS" | sudo -S tee /tmp/prodemyx-nginx > /dev/null << 'NGINXEOF'
         upstream backend_app {
             server 127.0.0.1:5000;
             keepalive 64;
