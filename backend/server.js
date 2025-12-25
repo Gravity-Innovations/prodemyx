@@ -1,6 +1,7 @@
 // ========================================================
 //  SERVER.JS — FULLY MERGED (UPLOADS + COURSES + PAYMENT)
 // ========================================================
+// Updated: 2025-12-25
 
 require("dotenv").config();
 const express = require("express");
