@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://72.61.243.218:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://prodemyx.com/api';
 
 export async function apiFetch(url: string, options: RequestInit = {}) {
   const headers = {

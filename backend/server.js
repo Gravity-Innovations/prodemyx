@@ -30,7 +30,7 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-const publicUrl = "http://72.61.243.218:5000";
+const publicUrl = process.env.PUBLIC_URL || "https://prodemyx.com";
 
 // ========================================================
 // SWAGGER SETUP
@@ -45,7 +45,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://72.61.243.218:5000",
+        url: "https://prodemyx.com",
         description: "Production server",
       },
       {

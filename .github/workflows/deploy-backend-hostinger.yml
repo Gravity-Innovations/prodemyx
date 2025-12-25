@@ -149,7 +149,7 @@ jobs:
         DB_NAME=prodemyx
         JWT_SECRET=my_super_secret_key
         NODE_ENV=production
-        PUBLIC_URL=http://72.61.243.218:5000
+        PUBLIC_URL=https://prodemyx.com
         RAZORPAY_KEY_ID=rzp_test_RjxogaraG7bKKe
         RAZORPAY_KEY_SECRET=4KluvJFN2FvqOgLL21Pwczmt
         EMAIL_USER=keerthykrishna2510@gmail.com
@@ -172,7 +172,7 @@ jobs:
         server {
             listen 80 default_server;
             listen [::]:80 default_server;
-            server_name _;
+            server_name prodemyx.com www.prodemyx.com;
             
             add_header X-Frame-Options "SAMEORIGIN" always;
             add_header X-Content-Type-Options "nosniff" always;

@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Prodemyx website
       env:
-        VITE_API_URL: http://72.61.243.218:5000/api
+        VITE_API_URL: https://prodemyx.com/api
       run: |
         cd prodemyx
         npm run build
@@ -91,7 +91,7 @@ jobs:
         echo "========================================="
         echo "✓ Website deployment successful!"
         echo "========================================="
-        echo "Website available at: http://72.61.243.218"
+        echo "Website available at: https://prodemyx.com"
         echo "========================================="
         EOF
 
@@ -104,5 +104,5 @@ jobs:
         echo "✓ Files deployed to Hostinger"
         echo "✓ Nginx reloaded"
         echo "========================================="
-        echo "Access website at: http://72.61.243.218"
+        echo "Access website at: https://prodemyx.com"
         echo "========================================="
