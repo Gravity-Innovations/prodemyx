@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -19,12 +19,8 @@ jobs:
       with:
         fetch-depth: 2
 
-    - name: Install sshpass
-      run: sudo apt-get update && sudo apt-get install -y sshpass
-
     - name: Setup MySQL Server
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         set -e
         PASS='Dev@2025'
@@ -48,11 +44,9 @@ jobs:
         echo "$PASS" | sudo -S mysql -e "GRANT ALL PRIVILEGES ON prodemyx.* TO 'prodemyx_user'@'localhost';" 2>/dev/null || true
         echo "$PASS" | sudo -S mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
         echo "MySQL database configured"
-        EOF
 
     - name: Setup Node.js and PM2
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         set -e
         echo "========================================="
@@ -74,11 +68,9 @@ jobs:
         else
           echo "PM2 already installed"
         fi
-        EOF
 
     - name: Setup Nginx
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         set -e
         echo "========================================="
@@ -95,11 +87,9 @@ jobs:
           echo "Nginx already installed"
           echo "$PASS" | sudo -S systemctl start nginx || true
         fi
-        EOF
 
     - name: Create backend directory
-      run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "mkdir -p ~/prodemyx/backend"
+      run: mkdir -p ~/prodemyx/backend
 
     - name: Check if database file changed
       id: check_db
@@ -114,8 +104,7 @@ jobs:
       if: steps.check_db.outputs.db_changed == 'true'
       run: |
         echo "Database file changed, importing..."
-        sshpass -p 'Dev@2025' scp -o StrictHostKeyChecking=no prodemyx.sql prodemyxdev@72.61.243.218:/tmp/prodemyx.sql
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
+        cp prodemyx.sql /tmp/prodemyx.sql
         PASS='Dev@2025'
         set -e
         echo "Creating database backup..."
@@ -125,23 +114,21 @@ jobs:
         echo "$PASS" | sudo -S mysql prodemyx < /tmp/prodemyx.sql
         echo "Database imported successfully!"
         rm -f /tmp/prodemyx.sql
-        EOF
 
-    - name: Sync backend folder to Hostinger
+    - name: Sync backend folder
       run: |
-        sshpass -p 'Dev@2025' rsync -avz --delete \
+        rsync -av --delete \
           --exclude 'node_modules' \
           --exclude '.git' \
           --exclude '.env' \
           --exclude 'logs/*' \
           --exclude '*.log' \
-          -e 'ssh -o StrictHostKeyChecking=no' \
           backend/ \
-          prodemyxdev@72.61.243.218:~/prodemyx/backend/
+          ~/prodemyx/backend/
 
     - name: Deploy environment variables
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "cat > ~/prodemyx/backend/.env" << 'ENVEOF'
+        cat > ~/prodemyx/backend/.env << 'ENVEOF'
         PORT=5000
         DB_HOST=127.0.0.1
         DB_USER=prodemyx_user
@@ -158,7 +145,6 @@ jobs:
 
     - name: Configure Nginx
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         set -e
         PASS='Dev@2025'
         echo "Configuring Nginx..."
@@ -236,11 +222,9 @@ jobs:
         echo "$PASS" | sudo -S nginx -t
         echo "$PASS" | sudo -S systemctl reload nginx
         echo "Nginx configured successfully!"
-        EOF
 
     - name: Install dependencies and restart backend
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         set -e
         cd ~/prodemyx/backend
@@ -269,11 +253,9 @@ jobs:
         echo "$PASS" | sudo -S bash -c "$(pm2 startup systemd -u $USER --hp $HOME | tail -1)" || true
         
         echo "Backend deployment completed!"
-        EOF
 
     - name: Verify deployment
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         echo "========================================="
         echo "Deployment Verification"
@@ -290,5 +272,4 @@ jobs:
         echo "========================================="
         echo "✓ Backend deployment successful!"
         echo "========================================="
-        EOF
         

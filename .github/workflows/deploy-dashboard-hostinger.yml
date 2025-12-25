@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -35,23 +35,20 @@ jobs:
         cd dashboard
         npm run build
 
-    - name: Install sshpass
-      run: sudo apt-get update && sudo apt-get install -y sshpass
-
-    - name: Create dashboard directory on Hostinger
+    - name: Create dashboard directory
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 "echo 'Dev@2025' | sudo -S mkdir -p /var/www/prodemyx-dashboard && echo 'Dev@2025' | sudo -S chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-dashboard"
+        PASS='Dev@2025'
+        echo "$PASS" | sudo -S mkdir -p /var/www/prodemyx-dashboard
+        echo "$PASS" | sudo -S chown -R prodemyxdev:prodemyxdev /var/www/prodemyx-dashboard
 
-    - name: Deploy dashboard build to Hostinger
+    - name: Deploy dashboard build
       run: |
-        sshpass -p 'Dev@2025' rsync -avz --delete \
-          -e 'ssh -o StrictHostKeyChecking=no' \
+        rsync -av --delete \
           dashboard/dist/ \
-          prodemyxdev@72.61.243.218:/var/www/prodemyx-dashboard/
+          /var/www/prodemyx-dashboard/
 
     - name: Set permissions and reload Nginx
       run: |
-        sshpass -p 'Dev@2025' ssh -o StrictHostKeyChecking=no prodemyxdev@72.61.243.218 'bash -s' << 'EOF'
         PASS='Dev@2025'
         set -e
         echo "========================================="
@@ -93,7 +90,6 @@ jobs:
         echo "========================================="
         echo "Dashboard available at: https://prodemyx.com/app"
         echo "========================================="
-        EOF
 
     - name: Deployment summary
       run: |
