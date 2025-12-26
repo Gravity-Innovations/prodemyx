@@ -1,6 +1,7 @@
 
-// Font URL
-$font-url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap';
+// Font URL - DEPRECATED
+// Google Fonts are now loaded directly in index.html for better performance.
+// Please remove the `@import url($font-url);` from your main SCSS file.
 
 // Font Family
 $theme-fonts: (

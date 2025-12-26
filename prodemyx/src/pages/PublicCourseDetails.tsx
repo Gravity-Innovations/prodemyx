@@ -203,7 +203,7 @@ export default function PublicCourseDetails() {
 
                   {/* FIXED: use s.long_description, NOT course.long_description */}
                   <p className="text-gray-600 mt-2 line-clamp-2">
-                    {course.long_description || "No description"}
+                    {s.short_description || "No description"}
                   </p>
 
                   <h5 className="price mt-3">Rs {s.price}</h5>

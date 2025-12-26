@@ -9,13 +9,15 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           // Grouping node_modules into vendor chunks
-          if (id.includes('node_modules')) {
-            // Group react-related libraries into a separate chunk for better caching
-            if (id.includes('react-router-dom') || id.includes('react-dom') || id.includes('react')) {
-              return 'vendor-react';
+          if (id.includes("node_modules")) {
+            const module = id.split("node_modules/").pop()?.split("/")[0];
+            if (module === "react" || module === "react-dom" || module === "react-router-dom") {
+              return "vendor-react";
             }
-            // Group other large libraries into a general vendor chunk
-            return 'vendor';
+            if (module === "swiper" || module === "gsap") {
+              return "vendor-animation";
+            }
+            return "vendor-main";
           }
         },
       },

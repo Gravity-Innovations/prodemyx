@@ -5,7 +5,7 @@ import { API_BASE_URL } from "../api";
 interface Course {
   id: number;
   title: string;
-  description?: string;
+  short_description?: string;
   photo?: string;
   price?: number;
   category_id: number;
@@ -81,7 +81,7 @@ const CategoryCourses: React.FC = () => {
             <div
               key={course.id}
               onClick={() => navigate(`/course/${course.id}`)}
-              className="cursor-pointer bg-white rounded-2xl border shadow-md hover:shadow-xl transition overflow-hidden p-5"
+              className="cursor-pointer bg-white rounded-2xl border shadow-md hover:shadow-xl transition overflow-hidden p-5 flex flex-col"
             >
               <img
                 src={
@@ -100,9 +100,9 @@ const CategoryCourses: React.FC = () => {
                 {course.title}
               </h3>
 
-              <p className="text-gray-600 text-sm mb-3">{categoryName}</p>
+              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{course.short_description || 'No description available'}</p>
 
-              <p className="text-indigo-600 font-semibold text-md">
+              <p className="text-indigo-600 font-semibold text-md mt-auto">
                 {course.price ? `₹${course.price}` : "Free"}
               </p>
             </div>
