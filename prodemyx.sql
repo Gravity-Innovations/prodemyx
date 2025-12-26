@@ -30,10 +30,11 @@ SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -56,7 +57,7 @@ INSERT INTO `categories` (`id`, `name`, `description`, `created_at`) VALUES
 
 DROP TABLE IF EXISTS `courses`;
 CREATE TABLE `courses` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `category_id` int(11) UNSIGNED DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
@@ -69,7 +70,9 @@ CREATE TABLE `courses` (
   `instructor_id` int(11) DEFAULT NULL,
   `status` enum('draft','published') DEFAULT 'draft',
   `file` longtext DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -91,7 +94,7 @@ INSERT INTO `courses` (`id`, `category_id`, `title`, `description`, `short_descr
 
 DROP TABLE IF EXISTS `course_schedules`;
 CREATE TABLE `course_schedules` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `course_id` int(11) UNSIGNED NOT NULL,
   `instructor_id` int(11) UNSIGNED DEFAULT NULL,
   `meeting_title` varchar(255) NOT NULL,
@@ -100,7 +103,10 @@ CREATE TABLE `course_schedules` (
   `meeting_date` date NOT NULL,
   `meeting_time` time NOT NULL,
   `status` enum('scheduled','completed','cancelled') DEFAULT 'scheduled',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `course_id` (`course_id`),
+  KEY `instructor_id` (`instructor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -119,13 +125,16 @@ INSERT INTO `course_schedules` (`id`, `course_id`, `instructor_id`, `meeting_tit
 
 DROP TABLE IF EXISTS `purchases`;
 CREATE TABLE `purchases` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(11) UNSIGNED DEFAULT NULL,
   `course_id` int(11) UNSIGNED DEFAULT NULL,
   `payment_id` varchar(255) DEFAULT NULL,
   `amount` decimal(10,2) DEFAULT NULL,
   `status` enum('pending','success','failed') DEFAULT 'pending',
-  `purchase_date` timestamp NOT NULL DEFAULT current_timestamp()
+  `purchase_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `course_id` (`course_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -145,14 +154,16 @@ INSERT INTO `purchases` (`id`, `user_id`, `course_id`, `payment_id`, `amount`, `
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(150) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` varchar(100) DEFAULT NULL,
   `role` enum('admin','instructor','student') NOT NULL DEFAULT 'student',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_unique` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -174,10 +185,13 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `address`, `rol
 
 DROP TABLE IF EXISTS `user_course_access`;
 CREATE TABLE `user_course_access` (
-  `id` int(11) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(11) UNSIGNED DEFAULT NULL,
   `course_id` int(11) UNSIGNED DEFAULT NULL,
-  `access_granted_date` timestamp NOT NULL DEFAULT current_timestamp()
+  `access_granted_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `course_id` (`course_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -192,90 +206,6 @@ INSERT INTO `user_course_access` (`id`, `user_id`, `course_id`, `access_granted_
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `categories`
---
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `courses`
---
-ALTER TABLE `courses`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `category_id` (`category_id`);
-
---
--- Indexes for table `course_schedules`
---
-ALTER TABLE `course_schedules`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `course_id` (`course_id`),
-  ADD KEY `instructor_id` (`instructor_id`);
-
---
--- Indexes for table `purchases`
---
-ALTER TABLE `purchases`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `course_id` (`course_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email_unique` (`email`);
-
---
--- Indexes for table `user_course_access`
---
-ALTER TABLE `user_course_access`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `course_id` (`course_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `courses`
---
-ALTER TABLE `courses`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `course_schedules`
---
-ALTER TABLE `course_schedules`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `purchases`
---
-ALTER TABLE `purchases`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `user_course_access`
---
-ALTER TABLE `user_course_access`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
