@@ -1238,17 +1238,25 @@ app.put(
 // PUBLIC list (website)
 /**
  * @swagger
- * /public/courses:
+ * /api/public/courses:
  *   get:
  *     summary: Get all public courses
  *     tags: [Courses]
+ *     parameters:
+ *       - in: query
+ *         name: category_id
+ *         schema:
+ *           type: integer
+ *         description: Filter by category ID
  *     responses:
  *       200:
  *         description: List of public courses
  */
-app.get("/api/public/courses", async (_, res) => {
+app.get("/api/public/courses", async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const { category_id } = req.query;
+
+    let query = `
       SELECT 
         c.id,
         c.title,
@@ -1259,9 +1267,17 @@ app.get("/api/public/courses", async (_, res) => {
         c.category_id,
         cat.name AS category_name
       FROM courses c
-      LEFT JOIN categories cat ON c.category_id = cat.id
-      ORDER BY c.id DESC
-  `);
+      LEFT JOIN categories cat ON c.category_id = cat.id`;
+
+    const params = [];
+    if (category_id) {
+      query += " WHERE c.category_id = ?";
+      params.push(category_id);
+    }
+
+    query += " ORDER BY c.id DESC";
+
+    const [rows] = await pool.query(query, params);
 
     const mapped = rows.map((c) => ({
       ...c,

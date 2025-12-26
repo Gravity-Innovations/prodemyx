@@ -12,28 +12,40 @@ interface Course {
   category_name: string;
 }
 
-const CATEGORY_TABS = [
-  "All Courses",
-  "Fullstack",
-  "DevOps",
-  "Cloud",
-  "Machine Learning",
-  "AI",
-  "LLMOps",
-];
+interface Category {
+  id: number;
+  name: string;
+}
 
 const CourseArea = ({ style }: { style: boolean }) => {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [activeCategory, setActiveCategory] =
-    useState<string>("All Courses");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategoryId, setActiveCategoryId] = useState<number | "all">("all");
+
+  /* ---------------- FETCH CATEGORIES ---------------- */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/public/categories`);
+        const data = await response.json();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   /* ---------------- FETCH COURSES ---------------- */
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/public/courses`
-        );
+        let url = `${API_BASE_URL}/public/courses`;
+        if (activeCategoryId !== "all") {
+          url += `?category_id=${activeCategoryId}`;
+        }
+        const response = await fetch(url);
         const data = await response.json();
         setCourses(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -42,22 +54,12 @@ const CourseArea = ({ style }: { style: boolean }) => {
     };
 
     fetchCourses();
-  }, []);
-
-  /* ---------------- FILTER COURSES ---------------- */
-  const filteredCourses =
-    activeCategory === "All Courses"
-      ? courses
-      : courses.filter(
-          (c) =>
-            c.category_name?.toLowerCase() ===
-            activeCategory.toLowerCase()
-        );
+  }, [activeCategoryId]);
 
   /* ---------------- SLIDER SETTINGS ---------------- */
   const setting = {
     slidesPerView: 4,
-    loop: filteredCourses.length > 4,
+    loop: courses.length > 4,
     spaceBetween: 30,
     observer: true,
     observeParents: true,
@@ -111,15 +113,25 @@ const CourseArea = ({ style }: { style: boolean }) => {
         {/* ---------------- CATEGORY TABS ---------------- */}
         <div className="course-category-tabs text-center mb-40">
           <ul className="list-wrap d-flex justify-content-center gap-4 flex-wrap">
-            {CATEGORY_TABS.map((cat) => (
-              <li key={cat}>
+            <li>
+              <button
+                className={`category-tab-btn ${
+                  activeCategoryId === "all" ? "active" : ""
+                }`}
+                onClick={() => setActiveCategoryId("all")}
+              >
+                All Courses
+              </button>
+            </li>
+            {categories.map((cat) => (
+              <li key={cat.id}>
                 <button
                   className={`category-tab-btn ${
-                    activeCategory === cat ? "active" : ""
+                    activeCategoryId === cat.id ? "active" : ""
                   }`}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => setActiveCategoryId(cat.id)}
                 >
-                  {cat}
+                  {cat.name}
                 </button>
               </li>
             ))}
@@ -132,7 +144,7 @@ const CourseArea = ({ style }: { style: boolean }) => {
           modules={[Autoplay, Navigation]}
           className="swiper courses-swiper-active"
         >
-          {filteredCourses.map((item) => (
+          {courses.map((item) => (
             <SwiperSlide key={item.id} className="swiper-slide">
               <div className="courses__item shine__animate-item">
                 <div className="courses__item-thumb">
