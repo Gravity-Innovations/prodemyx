@@ -26,42 +26,40 @@ const CategoryCourses: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadCategoryName();
-    loadCourses();
+    const fetchData = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch courses for the specific category and all categories in parallel
+        const [coursesRes, categoriesRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/public/courses?category_id=${id}`),
+          fetch(`${API_BASE_URL}/public/categories`),
+        ]);
+
+        if (!coursesRes.ok || !categoriesRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const coursesData: Course[] = await coursesRes.json();
+        const categoriesData: Category[] = await categoriesRes.json();
+
+        setCourses(coursesData);
+        const category = categoriesData.find((c) => String(c.id) === id);
+        setCategoryName(category ? category.name : "Courses");
+
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load courses for this category.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
-
-  const loadCourses = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/public/courses`);
-      const data: Course[] = await res.json();
-
-      // Filter by category
-      const filtered = data.filter((c) => c.category_id === Number(id));
-      setCourses(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Unable to load courses");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCategoryName = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/categories`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data: Category[] = await res.json();
-      const cat = data.find((c) => String(c.id) === String(id));
-
-      if (cat) setCategoryName(cat.name);
-    } catch (err) {
-      console.error("Failed to fetch category name");
-    }
-  };
 
   return (
     <div className="px-6 md:px-12 py-16 max-w-7xl mx-auto">
