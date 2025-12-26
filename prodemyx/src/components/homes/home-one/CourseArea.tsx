@@ -155,7 +155,7 @@ const CourseArea = ({ style }: { style: boolean }) => {
                     className="shine__animate-link"
                   >
                     <img 
-                      src={item.photo ? `${API_BASE_URL}${item.photo}` : "/assets/img/courses/default.png"}
+                      src={item.photo ? `${API_BASE_URL}${item.photo.replace(/^(?:https?:\/\/[^/]+)?(?:\/api)?/, "")}` : "/assets/img/courses/default.png"}
                       alt={item.title} 
                       onError={(e) => { 
                         const target = e.target as HTMLImageElement;

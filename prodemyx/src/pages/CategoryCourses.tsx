@@ -87,11 +87,9 @@ const CategoryCourses: React.FC = () => {
             >
               <img
                 src={
-                  course.photo && course.photo.startsWith("http")
-                    ? course.photo
-                    : course.photo
-                      ? `${API_BASE_URL}${course.photo}`
-                      : "/placeholder.jpg"
+                  course.photo
+                    ? `${API_BASE_URL}${course.photo.replace(/^(?:https?:\/\/[^/]+)?(?:\/api)?/, "")}`
+                    : "/placeholder.jpg"
                 }
                 alt={course.title}
                 className="w-full h-48 object-cover rounded-xl mb-4"
