@@ -11,6 +11,28 @@ import { RootState } from "../../../redux/store";
 import { Link } from "react-router-dom";
 import { apiFetch } from "../../../api";
 
+/* ======================================================
+   Razorpay SDK Loader (CRITICAL)
+====================================================== */
+function loadRazorpay(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && (window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+
+    script.onload = () => resolve(true);
+    script.onerror = () =>
+      reject(new Error("Razorpay SDK failed to load"));
+
+    document.body.appendChild(script);
+  });
+}
+
 const CartArea = () => {
   const productItem = useSelector((state: RootState) => state.cart.cart);
   const dispatch = useDispatch();
@@ -53,7 +75,11 @@ const CartArea = () => {
     );
   };
 
-  const registerAndProceed = async (name: string, email: string, phone: string) => {
+  const registerAndProceed = async (
+    name: string,
+    email: string,
+    phone: string
+  ) => {
     try {
       const response = await apiFetch("/auth/register-guest", {
         method: "POST",
@@ -66,7 +92,7 @@ const CartArea = () => {
         localStorage.setItem("guest_phone", phone);
 
         setShowGuestModal(false);
-        startCartPayment(true);
+        await startCartPayment(true);
       } else {
         alert(response.message || "Failed to register guest.");
       }
@@ -77,11 +103,16 @@ const CartArea = () => {
   };
 
   /* --------------------------------------------
-     Start Razorpay Payment
+     Start Razorpay Payment (FIXED)
   -------------------------------------------- */
   const startCartPayment = async (skipModal = false) => {
     if (!isLoggedInUser && !skipModal) {
       setShowGuestModal(true);
+      return;
+    }
+
+    if (productItem.length === 0) {
+      alert("Your cart is empty");
       return;
     }
 
@@ -101,22 +132,22 @@ const CartArea = () => {
     }
 
     if (!ownerName || !ownerEmail || !ownerPhone) {
-      alert("Missing name/email/phone");
+      alert("Missing name, email, or phone");
       return;
     }
 
     try {
-      if (productItem.length === 0) {
-        alert("Your cart is empty");
-        return;
+      /* ---------- ENSURE SDK LOADED ---------- */
+      await loadRazorpay();
+
+      if (!(window as any).Razorpay) {
+        throw new Error("Razorpay SDK not available");
       }
 
       const amount = total;
       const course_ids = productItem.map((i: any) => i.id);
 
-      /* --------------------------------------------
-         1) Create Razorpay Order
-      -------------------------------------------- */
+      /* ---------- CREATE ORDER ---------- */
       const order = await apiFetch("/payment/order", {
         method: "POST",
         body: JSON.stringify({
@@ -129,17 +160,14 @@ const CartArea = () => {
       });
 
       if (!order?.id) {
-        alert("Failed to create payment order");
-        return;
+        throw new Error("Failed to create Razorpay order");
       }
 
-      /* --------------------------------------------
-         2) Razorpay Checkout
-      -------------------------------------------- */
-      const options: any = {
+      /* ---------- CHECKOUT ---------- */
+      const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
-        currency: order.currency,
+        currency: order.currency || "INR",
         name: "ProdemyX – Cart Checkout",
         description: "Purchase Multiple Courses",
         order_id: order.id,
@@ -150,7 +178,7 @@ const CartArea = () => {
           contact: ownerPhone,
         },
 
-        handler: async function (response: any) {
+        handler: async (response: any) => {
           try {
             await apiFetch("/payment/verify", {
               method: "POST",
@@ -159,7 +187,7 @@ const CartArea = () => {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 amount,
-                course_ids: JSON.stringify(course_ids),
+                course_ids,
                 customer_name: ownerName,
                 customer_email: ownerEmail,
                 customer_phone: ownerPhone,
@@ -169,13 +197,14 @@ const CartArea = () => {
             dispatch(clear_cart());
             window.location.href = "/payment-success";
           } catch (err) {
-            console.error(err);
+            console.error("Verification error:", err);
             window.location.href = "/payment-failed";
           }
         },
       };
 
-      new (window as any).Razorpay(options).open();
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (err) {
       console.error("Payment error:", err);
       alert("Unable to start payment");
@@ -183,7 +212,7 @@ const CartArea = () => {
   };
 
   /* --------------------------------------------
-     RENDER UI
+     RENDER UI (UNCHANGED)
   -------------------------------------------- */
   return (
     <>
@@ -211,7 +240,7 @@ const CartArea = () => {
               textAlign: "center",
             }}
           >
-            <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "18px" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 18 }}>
               Enter Your Details
             </h2>
 
@@ -243,7 +272,10 @@ const CartArea = () => {
               Continue To Checkout
             </button>
 
-            <button onClick={() => setShowGuestModal(false)} className="btn btn-light w-100">
+            <button
+              onClick={() => setShowGuestModal(false)}
+              className="btn btn-light w-100"
+            >
               Cancel
             </button>
           </div>
@@ -262,7 +294,6 @@ const CartArea = () => {
             </div>
           ) : (
             <div className="row">
-              {/* LEFT TABLE */}
               <div className="col-lg-8">
                 <table className="table cart__table">
                   <thead>
@@ -273,32 +304,39 @@ const CartArea = () => {
                       <th></th>
                     </tr>
                   </thead>
-
                   <tbody>
-                    {productItem.map((item: any, i: any) => (
+                    {productItem.map((item: any, i: number) => (
                       <tr key={i}>
                         <td>
                           <img
                             src={item.thumb}
                             alt="cart"
-                            style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }}
+                            style={{
+                              width: 80,
+                              height: 80,
+                              objectFit: "cover",
+                              borderRadius: 8,
+                            }}
                           />
                         </td>
-
                         <td>
-                          <Link to={`/shop-details/${item.id}`}>{item.title}</Link>
+                          <Link to={`/shop-details/${item.id}`}>
+                            {item.title}
+                          </Link>
                         </td>
-
                         <td>₹{item.price}.00</td>
-
                         <td>
-                          <a style={{ cursor: "pointer" }} onClick={() => dispatch(remove_cart_product(item))}>
+                          <a
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              dispatch(remove_cart_product(item))
+                            }
+                          >
                             ×
                           </a>
                         </td>
                       </tr>
                     ))}
-
                     <tr>
                       <td colSpan={4} className="cart__actions">
                         <button
@@ -315,17 +353,22 @@ const CartArea = () => {
                 </table>
               </div>
 
-              {/* RIGHT TOTAL */}
               <div className="col-lg-4">
                 <div className="cart__collaterals-wrap">
                   <h2 className="title">Cart Totals</h2>
-
                   <ul className="list-wrap">
-                    <li>Subtotal <span>₹{total.toFixed(2)}</span></li>
-                    <li>Total <span>₹{total.toFixed(2)}</span></li>
+                    <li>
+                      Subtotal <span>₹{total.toFixed(2)}</span>
+                    </li>
+                    <li>
+                      Total <span>₹{total.toFixed(2)}</span>
+                    </li>
                   </ul>
-
-                  <button type="button" className="btn" onClick={() => startCartPayment()}>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => startCartPayment()}
+                  >
                     Proceed To Checkout
                   </button>
                 </div>
