@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { apiFetch } from "../api";
+import { apiFetch, API_BASE_URL } from "../api";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/features/cartSlice";
 
@@ -65,10 +65,15 @@ export default function PublicCourseDetails() {
             <div className="col-xl-6 col-lg-6">
               <div className="courses__details-thumb">
                 <img
-  src={course.photo || "/assets/img/courses/courses_details.jpg"}
-  alt={course.title}
-  style={{ width: "100%", borderRadius: "10px" }}
-/>
+                  src={
+                    course.photo
+                      ? `${API_BASE_URL}${course.photo.replace(/^(?:https?:\/\/[^/]+)?(?:\/api)?/, "")}`
+                      : "/assets/img/courses/courses_details.jpg"
+                  }
+                  alt={course.title}
+                  style={{ width: "100%", borderRadius: "10px" }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/assets/img/courses/courses_details.jpg"; }}
+                />
 
               </div>
             </div>
@@ -119,7 +124,9 @@ export default function PublicCourseDetails() {
                         title: course.title,
                         price: course.price,
                         quantity: 1,
-                        thumb: course.photo || "/assets/img/courses/courses_details.jpg",
+                        thumb: course.photo 
+                          ? `${API_BASE_URL}${course.photo.replace(/^(?:https?:\/\/[^/]+)?(?:\/api)?/, "")}`
+                          : "/assets/img/courses/courses_details.jpg",
                         user_name: "",
                         user_email: "",
                       })
@@ -174,11 +181,16 @@ export default function PublicCourseDetails() {
                   }}
                 >
                   <img
-  src={s.photo || "/assets/img/courses/courses_details.jpg"}
-  alt={s.title}
-  className="mb-3 rounded"
-  style={{ width: "100%", borderRadius: "10px" }}
-/>
+                    src={
+                      s.photo
+                        ? `${API_BASE_URL}${s.photo.replace(/^(?:https?:\/\/[^/]+)?(?:\/api)?/, "")}`
+                        : "/assets/img/courses/courses_details.jpg"
+                    }
+                    alt={s.title}
+                    className="mb-3 rounded"
+                    style={{ width: "100%", borderRadius: "10px" }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = "/assets/img/courses/courses_details.jpg"; }}
+                  />
 
                   <h4 className="text-lg font-semibold">{s.title}</h4>
 
