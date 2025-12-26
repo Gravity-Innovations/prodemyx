@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { apiFetch, API_BASE_URL } from "../api";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/features/cartSlice";
+import { Helmet } from "react-helmet-async";
 
 interface Course {
   id: number;
@@ -10,6 +11,7 @@ interface Course {
   long_description?: string;
   price: number;
   photo?: string;
+  short_description?: string;
 }
 
 export default function PublicCourseDetails() {
@@ -56,6 +58,10 @@ export default function PublicCourseDetails() {
 
   return (
     <>
+      <Helmet>
+        <title>{course.title} | ProdemyX</title>
+        <meta name="description" content={course.short_description || course.title} />
+      </Helmet>
       {/* COURSE DETAILS */}
       <section className="courses__details-area section-py-120">
         <div className="container">
