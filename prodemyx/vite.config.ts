@@ -8,16 +8,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Grouping node_modules into vendor chunks
           if (id.includes("node_modules")) {
-            const module = id.split("node_modules/").pop()?.split("/")[0];
-            if (module === "react" || module === "react-dom" || module === "react-router-dom") {
-              return "vendor-react";
-            }
-            if (module === "swiper" || module === "gsap") {
-              return "vendor-animation";
-            }
-            return "vendor-main";
+            // Group all node_modules into a single, stable vendor chunk.
+            return 'vendor';
           }
         },
       },
