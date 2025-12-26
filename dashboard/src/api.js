@@ -1,5 +1,7 @@
 // src/api.js
-export const BASE_URL = import.meta.env.VITE_API_URL || "https://prodemyx.com/api";
+export const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' 
+  ? "https://prodemyx.com/api" 
+  : "http://localhost:5000/api");
 
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token");

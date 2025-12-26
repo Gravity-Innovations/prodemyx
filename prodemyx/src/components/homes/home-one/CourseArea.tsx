@@ -10,6 +10,7 @@ interface Course {
   short_description: string;
   photo: string;
   category_name: string;
+  category_id: number;
 }
 
 interface Category {
@@ -41,11 +42,7 @@ const CourseArea = ({ style }: { style: boolean }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        let url = `${API_BASE_URL}/public/courses`;
-        if (activeCategoryId !== "all") {
-          url += `?category_id=${activeCategoryId}`;
-        }
-        const response = await fetch(url);
+        const response = await fetch(`${API_BASE_URL}/public/courses`);
         const data = await response.json();
         setCourses(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -54,12 +51,17 @@ const CourseArea = ({ style }: { style: boolean }) => {
     };
 
     fetchCourses();
-  }, [activeCategoryId]);
+  }, []);
+
+  const filteredCourses =
+    activeCategoryId === "all"
+      ? courses
+      : courses.filter((course) => course.category_id === activeCategoryId);
 
   /* ---------------- SLIDER SETTINGS ---------------- */
   const setting = {
     slidesPerView: 4,
-    loop: courses.length > 4,
+    loop: filteredCourses.length > 4,
     spaceBetween: 30,
     observer: true,
     observeParents: true,
@@ -144,7 +146,7 @@ const CourseArea = ({ style }: { style: boolean }) => {
           modules={[Autoplay, Navigation]}
           className="swiper courses-swiper-active"
         >
-          {courses.map((item) => (
+          {filteredCourses.map((item) => (
             <SwiperSlide key={item.id} className="swiper-slide">
               <div className="courses__item shine__animate-item">
                 <div className="courses__item-thumb">
@@ -152,7 +154,15 @@ const CourseArea = ({ style }: { style: boolean }) => {
                     to={`/course/${item.id}`}
                     className="shine__animate-link"
                   >
-                    <img src={item.photo} alt={item.title} />
+                    <img 
+                      src={item.photo ? `${API_BASE_URL}${item.photo}` : "/assets/img/courses/default.png"}
+                      alt={item.title} 
+                      onError={(e) => { 
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null; // Prevent infinite loop
+                        target.src = "/assets/img/courses/default.png"; 
+                      }}
+                    />
                   </Link>
                 </div>
 

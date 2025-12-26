@@ -31,7 +31,9 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-const publicUrl = process.env.PUBLIC_URL || "https://prodemyx.com";
+const publicUrl = process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' 
+  ? "https://prodemyx.com" 
+  : "http://localhost:5000");
 
 // ========================================================
 // SWAGGER SETUP
@@ -1281,9 +1283,9 @@ app.get("/api/public/courses", async (req, res) => {
 
     const mapped = rows.map((c) => ({
       ...c,
-      thumb: c.photo ? `${publicUrl}/api${c.photo}` : null, // Keep for backward compatibility
-      photo: c.photo ? `${publicUrl}/api${c.photo}` : null,
-      material_url: c.file ? `${publicUrl}/api${c.file}` : null
+      thumb: c.photo,
+      photo: c.photo,
+      material_url: c.file
     }));
 
     res.json(mapped);
@@ -1332,10 +1334,8 @@ app.get("/api/public/courses/:id", async (req, res) => {
 
     const course = rows[0];
 
-    course.photo = course.photo ? `${publicUrl}/api${course.photo}` : null;
-    course.material_url = course.file
-      ? `${publicUrl}/api${course.file}`
-      : null;
+    // The frontend will construct the full URL.
+    course.material_url = course.file;
 
     res.json(course);
   } catch (err) {
@@ -1444,9 +1444,7 @@ app.get("/api/student/enrolled-courses", auth, studentOnly, async (req, res) => 
     const updated = rows.map((c) => ({
       ...c,
       zoom_link: c.zoom_link || null,
-      material_file: c.material_file
-        ? `${publicUrl}/api${c.material_file}`
-        : null,
+      material_file: c.material_file,
     }));
 
     res.json(updated);
