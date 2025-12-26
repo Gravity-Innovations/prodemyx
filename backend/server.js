@@ -6,6 +6,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const compression = require("compression");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mysql = require("mysql2/promise");
@@ -14,6 +15,7 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
+const sharp = require("sharp");
 const fs = require("fs");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
@@ -29,6 +31,7 @@ function generatePassword() {
 
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
+app.use(compression());
 app.use(express.json());
 
 const publicUrl = process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' 
@@ -212,7 +215,9 @@ if (!fs.existsSync(materialsDir)) fs.mkdirSync(materialsDir, { recursive: true }
 if (!fs.existsSync(coverDir)) fs.mkdirSync(coverDir, { recursive: true });
 
 // expose folder
-app.use("/api/uploads", express.static(uploadsRoot));
+app.use("/api/uploads", express.static(uploadsRoot, {
+  maxAge: '1y' // Cache static assets for 1 year
+}));
 
 
 // ===== MATERIAL UPLOAD =====
@@ -306,12 +311,21 @@ const uploadCover = multer({
  *       400:
  *         description: No image uploaded or invalid file type
  */
-app.post("/api/upload-cover", uploadCover.single("cover"), (req, res) => {
+app.post("/api/upload-cover", uploadCover.single("cover"), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+  const webpFilename = `${path.basename(req.file.filename, path.extname(req.file.filename))}.webp`;
+  const webpPath = path.join(coverDir, webpFilename);
+
+  await sharp(req.file.path)
+    .webp({ quality: 80 })
+    .toFile(webpPath);
+
+  fs.unlinkSync(req.file.path); // remove original
 
   return res.json({
     message: "Cover uploaded",
-    filePath: `/uploads/course-covers/${req.file.filename}`,
+    filePath: `/uploads/course-covers/${webpFilename}`,
   });
 });
 
@@ -322,8 +336,10 @@ const courseStorage = multer.diskStorage({
     else if (file.fieldname === "material") cb(null, materialsDir);
     else cb(new Error("Invalid field name"), null);
   },
-  filename: (_, file, cb) =>
-    cb(null, Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname)),
+  filename: (_, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 const uploadCourseFiles = multer({
@@ -1150,7 +1166,7 @@ app.delete("/api/courses/:id", auth, adminOnly, async (req, res) => {
  *         description: Admin access required
  */
 app.put(
-  "/api/courses/:id",
+  "/api/courses/:id", 
   auth,
   adminOnly,
   uploadCourseFiles.fields([
@@ -1192,8 +1208,18 @@ app.put(
       if (price) { query += "price=?, "; params.push(price); }
 
       if (req.files["photo"]) {
+        const photoFile = req.files["photo"][0];
+        const webpFilename = `${path.basename(photoFile.filename, path.extname(photoFile.filename))}.webp`;
+        const webpPath = path.join(coverDir, webpFilename);
+
+        await sharp(photoFile.path)
+          .webp({ quality: 80 })
+          .toFile(webpPath);
+
+        fs.unlinkSync(photoFile.path); // remove original
+
         query += "photo=?, ";
-        params.push(`/uploads/course-covers/${req.files["photo"][0].filename}`);
+        params.push(`/uploads/course-covers/${webpFilename}`);
       }
       if (req.files["material"]) {
         query += "file=?, ";

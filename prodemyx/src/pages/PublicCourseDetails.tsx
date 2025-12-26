@@ -189,6 +189,7 @@ export default function PublicCourseDetails() {
                     alt={s.title}
                     className="mb-3 rounded"
                     style={{ width: "100%", borderRadius: "10px" }}
+                    loading="lazy"
                     onError={(e) => { (e.target as HTMLImageElement).src = "/assets/img/courses/courses_details.jpg"; }}
                   />
 
