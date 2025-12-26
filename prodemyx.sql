@@ -11,6 +11,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+SET FOREIGN_KEY_CHECKS=0;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -27,6 +28,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `categories`
 --
 
+DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(11) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -52,6 +54,7 @@ INSERT INTO `categories` (`id`, `name`, `description`, `created_at`) VALUES
 -- Table structure for table `courses`
 --
 
+DROP TABLE IF EXISTS `courses`;
 CREATE TABLE `courses` (
   `id` int(11) UNSIGNED NOT NULL,
   `category_id` int(11) UNSIGNED DEFAULT NULL,
@@ -86,6 +89,7 @@ INSERT INTO `courses` (`id`, `category_id`, `title`, `description`, `short_descr
 -- Table structure for table `course_schedules`
 --
 
+DROP TABLE IF EXISTS `course_schedules`;
 CREATE TABLE `course_schedules` (
   `id` int(11) UNSIGNED NOT NULL,
   `course_id` int(11) UNSIGNED NOT NULL,
@@ -113,6 +117,7 @@ INSERT INTO `course_schedules` (`id`, `course_id`, `instructor_id`, `meeting_tit
 -- Table structure for table `purchases`
 --
 
+DROP TABLE IF EXISTS `purchases`;
 CREATE TABLE `purchases` (
   `id` int(11) UNSIGNED NOT NULL,
   `user_id` int(11) UNSIGNED DEFAULT NULL,
@@ -138,6 +143,7 @@ INSERT INTO `purchases` (`id`, `user_id`, `course_id`, `payment_id`, `amount`, `
 -- Table structure for table `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int(11) UNSIGNED NOT NULL,
   `name` varchar(150) DEFAULT NULL,
@@ -166,6 +172,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `address`, `rol
 -- Table structure for table `user_course_access`
 --
 
+DROP TABLE IF EXISTS `user_course_access`;
 CREATE TABLE `user_course_access` (
   `id` int(11) UNSIGNED NOT NULL,
   `user_id` int(11) UNSIGNED DEFAULT NULL,
@@ -300,6 +307,7 @@ ALTER TABLE `purchases`
 ALTER TABLE `user_course_access`
   ADD CONSTRAINT `user_course_access_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `user_course_access_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
