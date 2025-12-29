@@ -7,7 +7,7 @@ import NavMenu from "./menu/NavMenu";
 
 const HeaderTwo = () => {
   const { sticky } = UseSticky();
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState(false);
 
   return (
     <>
@@ -46,7 +46,7 @@ const HeaderTwo = () => {
                         <img
                           src="/assets/img/logo/logo.png"
                           className="logo_width"
-                          alt="Logo"
+                          alt="ProdemyX logo"
                         />
                       </Link>
                     </div>
@@ -60,12 +60,10 @@ const HeaderTwo = () => {
                     <div className="tgmenu__action tgmenu__action-two">
                       <ul className="list-wrap">
                         <li className="header-btn login-btn">
-                          {/* ✅ EXTERNAL LOGIN LINK */}
+                          {/* LOGIN – SAME TAB */}
                           <a
                             href="https://prodemyx.com/app/"
                             className="btn"
-                            target="_blank"
-                            rel="noopener noreferrer"
                           >
                             Login
                           </a>
@@ -73,13 +71,9 @@ const HeaderTwo = () => {
                       </ul>
                     </div>
 
-                    {/* MOBILE LOGIN ICON */}
+                    {/* MOBILE LOGIN ICON – SAME TAB */}
                     <div className="mobile-login-btn">
-                      <a
-                        href="https://prodemyx.com/app/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a href="https://prodemyx.com/app/">
                         <InjectableSvg
                           src="/assets/img/icons/user.svg"
                           alt="Login"
