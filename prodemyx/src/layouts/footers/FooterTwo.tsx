@@ -82,9 +82,7 @@ const FooterTwo = ({ style }: FooterTwoProps) => {
             <div className="container">
                <div className="row align-items-center">
                   <div className="col-md-7">
-                     <div className="copy-right-text">
-                        <p>© 2025-2026 <a href="https://gravityinnovativesolutions.in/">Team Gravity </a>All rights reserved.</p>
-                     </div>
+                     
                   </div>
                   <div className="col-md-5">
                      <div className="footer__bottom-menu">

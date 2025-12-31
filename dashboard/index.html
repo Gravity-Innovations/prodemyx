@@ -1,17 +1,28 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
-  <base href="/app/">
-</head>
+    <!-- Primary favicon (preferred by browsers) -->
+    <link rel="icon" href="/favicon-v2.ico" />
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="src/main.jsx"></script>
-</body>
+    <!-- PNG fallback -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-prodemyx.png" />
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Prodemyx LMS Dashboard" />
+
+    <title>Dashboard</title>
+
+    <!-- Base path for dashboard routing -->
+    <base href="/app/" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- Vite entry (absolute to avoid base interference) -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

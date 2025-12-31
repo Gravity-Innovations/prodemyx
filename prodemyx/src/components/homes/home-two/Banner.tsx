@@ -25,9 +25,7 @@ const Banner = () => {
             <div className="col-xl-5 col-lg-6">
               <div className="banner__content-two">
                 <h1
-                  className="text-white"
-                  data-aos="fade-right"
-                  data-aos-delay="300"
+                  className="text-white hero-title"
                   style={{
                     fontSize: "42px",
                     fontWeight: 700,
@@ -44,26 +42,23 @@ const Banner = () => {
                 </h1>
 
                 <p
-                  data-aos="fade-right"
-                  data-aos-delay="450"
-                  style={{
-                    marginTop: "18px",
-                    fontSize: "18px",
-                    color: "#cbd5f5",
-                    maxWidth: "480px",
-                    lineHeight: "1.6",
-                  }}
-                >
+  className="hero-subtitle"
+  style={{
+    marginTop: "18px",
+    fontSize: "18px",
+    color: "#cbd5f5",
+    maxWidth: "480px",
+    lineHeight: "1.6",
+  }}
+>
+
                   Learn Coding, DevOps, AIOps, LLMOps &amp; more using the same
                   systems, tools, and workflows used in real companies.
                 </p>
 
                 {/* CTA BUTTONS */}
-                <div
-                  className="banner__btn-two"
-                  data-aos="fade-right"
-                  data-aos-delay="600"
-                >
+                <div className="banner__btn-two hero-cta">
+
                   <Link to="" className="btn arrow-btn">
                     Start Now <BtnArrow />
                   </Link>
